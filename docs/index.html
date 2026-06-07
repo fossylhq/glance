@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fossyl | Glance</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/svg+xml" id="favicon-link">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+  <!-- Sun icon (shown in dark mode) -->
+  <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
+  </svg>
+  <!-- Moon icon (shown in light mode) -->
+  <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
+  </svg>
+</button>
+
+<!-- Toast Container -->
+<div id="toast-container" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div id="loginScreen">
+  <div class="login-card glass-panel">
+
+    <div class="login-logo">
+      <!-- Dark Logo (for light theme) -->
+      <img class="logo-light" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODYiIGhlaWdodD0iODUiIHZpZXdCb3g9IjAgMCA4NiA4NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQyLjgxMjUgMTYuNTYyNUMxOS4yMTI1IDE2LjU2MjUgMCAyOC4yIDAgNDIuNUMwIDU2LjggMTkuMiA2OC40Mzc1IDQyLjgxMjUgNjguNDM3NUM2Ni40MjUgNjguNDM3NSA4NS42MjUgNTYuOCA4NS42MjUgNDIuNUM4NS42MjUgMjguMiA2Ni40MjUgMTYuNTYyNSA0Mi44MTI1IDE2LjU2MjVaTTI4Ljc4NzUgNDIuNUMyOC43ODc1IDUxLjMgMzEuMzEyNSA1OS4wNSAzNS4xMjUgNjMuNTYyNUMzNi4xMTI1IDY0LjczNzUgMzUuMDM3NSA2Ni41IDMzLjU1IDY2LjE2MjVDMjAuMTYyNSA2My4xMjUgMTAuMzc1IDUzLjY2MjUgMTAuMzc1IDQyLjVDMTAuMzc1IDMxLjMzNzUgMjAuMTYyNSAyMS44ODc1IDMzLjU1IDE4LjgzNzVDMzUuMDUgMTguNSAzNi4xMjUgMjAuMjYyNSAzNS4xMjUgMjEuNDM3NUMzMS4zMTI1IDI1LjkzNzUgMjguNzg3NSAzMy43IDI4Ljc4NzUgNDIuNVpNNDIuODEyNSAxOC41Mzc1QzQ5Ljg2MjUgMTguNTM3NSA1NS41ODc1IDI5LjI4NzUgNTUuNTg3NSA0Mi41QzU1LjU4NzUgNTUuNzEyNSA0OS44NSA2Ni40NjI1IDQyLjgxMjUgNjYuNDYyNUMzNS43NzUgNjYuNDYyNSAzMC4wMzc1IDU1LjcxMjUgMzAuMDM3NSA0Mi41QzMwLjAzNzUgMjkuMjg3NSAzNS43NzUgMTguNTM3NSA0Mi44MTI1IDE4LjUzNzVaTTU2LjgzNzUgNDIuNUM1Ni44Mzc1IDMzLjcgNTQuMzEyNSAyNS45NSA1MC41IDIxLjQzNzVDNDkuNTEyNSAyMC4yNjI1IDUwLjU4NzUgMTguNSA1Mi4wNzUgMTguODM3NUM2NS40NjI1IDIxLjg3NSA3NS4yNSAzMS4zMzc1IDc1LjI1IDQyLjVDNzUuMjUgNTMuNjYyNSA2NS40NjI1IDYzLjExMjUgNTIuMDc1IDY2LjE2MjVDNTAuNTc1IDY2LjUgNDkuNSA2NC43Mzc1IDUwLjUgNjMuNTYyNUM1NC4zMTI1IDU5LjA2MjUgNTYuODM3NSA1MS4zIDU2LjgzNzUgNDIuNVpNMS4yNSA0Mi41QzEuMjUgMzUuNzc1IDUuOCAyOS42NjI1IDEzLjE3NSAyNS4yMTI1QzE0Ljc3NSAyNC4yMzc1IDE2LjQ2MjUgMjYuMjc1IDE1LjIgMjcuNjYyNUMxMS4zNzUgMzEuODYyNSA5LjEyNSAzNi45ODc1IDkuMTI1IDQyLjVDOS4xMjUgNDguMDEyNSAxMS4zNzUgNTMuMTI1IDE1LjIgNTcuMzM3NUMxNi40NjI1IDU4LjcyNSAxNC43ODc1IDYwLjc2MjUgMTMuMTc1IDU5Ljc4NzVDNS44IDU1LjMyNSAxLjI1IDQ5LjIyNSAxLjI1IDQyLjVaTTcyLjQ1IDU5LjhDNzAuODUgNjAuNzc1IDY5LjE2MjUgNTguNzM3NSA3MC40MjUgNTcuMzVDNzQuMjUgNTMuMTM3NSA3Ni41IDQ4LjAyNSA3Ni41IDQyLjUxMjVDNzYuNSAzNyA3NC4yNSAzMS44NzUgNzAuNDI1IDI3LjY3NUM2OS4xNjI1IDI2LjI4NzUgNzAuODM3NSAyNC4yNSA3Mi40NSAyNS4yMjVDNzkuODI1IDI5LjY4NzUgODQuMzc1IDM1Ljc4NzUgODQuMzc1IDQyLjUyNUM4NC4zNzUgNDkuMjYyNSA3OS44MjUgNTUuMzYyNSA3Mi40NSA1OS44MjVWNTkuOFoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik00Mi44MTI0IDBMNDQuNDM3NCAzNy4zMjVDNDQuNTI0OSAzOS4yNSA0Ni4wNjI0IDQwLjc4NzUgNDcuOTg3NCA0MC44NzVMODUuMzEyNCA0Mi41TDQ3Ljk4NzQgNDQuMTI1QzQ2LjA2MjQgNDQuMjEyNSA0NC41MjQ5IDQ1Ljc1IDQ0LjQzNzQgNDcuNjc1TDQyLjgxMjQgODVMNDEuMTg3NCA0Ny42NzVDNDEuMDk5OSA0NS43NSAzOS41NjI0IDQ0LjIxMjUgMzcuNjM3NCA0NC4xMjVMMC4zMTI0MzkgNDIuNUwzNy42Mzc0IDQwLjg3NUMzOS41NjI0IDQwLjc4NzUgNDEuMDk5OSAzOS4yNSA0MS4xODc0IDM3LjMyNUw0Mi44MTI0IDBaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K" alt="Fossyl Logo">
+      <!-- White Logo (for dark theme) -->
+      <img class="logo-dark" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODYiIGhlaWdodD0iODUiIHZpZXdCb3g9IjAgMCA4NiA4NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQyLjgxMjUgMTYuNTYyNUMxOS4yMTI1IDE2LjU2MjUgMCAyOC4yIDAgNDIuNUMwIDU2LjggMTkuMiA2OC40Mzc1IDQyLjgxMjUgNjguNDM3NUM2Ni40MjUgNjguNDM3NSA4NS42MjUgNTYuOCA4NS42MjUgNDIuNUM4NS42MjUgMjguMiA2Ni40MjUgMTYuNTYyNSA0Mi44MTI1IDE2LjU2MjVaTTI4Ljc4NzUgNDIuNUMyOC43ODc1IDUxLjMgMzEuMzEyNSA1OS4wNSAzNS4xMjUgNjMuNTYyNUMzNi4xMTI1IDY0LjczNzUgMzUuMDM3NSA2Ni41IDMzLjU1IDY2LjE2MjVDMjAuMTYyNSA2My4xMjUgMTAuMzc1IDUzLjY2MjUgMTAuMzc1IDQyLjVDMTAuMzc1IDMxLjMzNzUgMjAuMTYyNSAyMS44ODc1IDMzLjU1IDE4LjgzNzVDMzUuMDUgMTguNSAzNi4xMjUgMjAuMjYyNSAzNS4xMjUgMjEuNDM3NUMzMS4zMTI1IDI1LjkzNzUgMjguNzg3NSAzMy43IDI4Ljc4NzUgNDIuNVpNNDIuODEyNSAxOC41Mzc1QzQ5Ljg2MjUgMTguNTM3NSA1NS41ODc1IDI5LjI4NzUgNTUuNTg3NSA0Mi41QzU1LjU4NzUgNTUuNzEyNSA0OS44NSA2Ni40NjI1IDQyLjgxMjUgNjYuNDYyNUMzNS43NzUgNjYuNDYyNSAzMC4wMzc1IDU1LjcxMjUgMzAuMDM3NSA0Mi41QzMwLjAzNzUgMjkuMjg3NSAzNS43NzUgMTguNTM3NSA0Mi44MTI1IDE4LjUzNzVaTTU2LjgzNzUgNDIuNUM1Ni44Mzc1IDMzLjcgNTQuMzEyNSAyNS45NSA1MC41IDIxLjQzNzVDNDkuNTEyNSAyMC4yNjI1IDUwLjU4NzUgMTguNSA1Mi4wNzUgMTguODM3NUM2NS40NjI1IDIxLjg3NSA3NS4yNSAzMS4zMzc1IDc1LjI1IDQyLjVDNzUuMjUgNTMuNjYyNSA2NS40NjI1IDYzLjExMjUgNTIuMDc1IDY2LjE2MjVDNTAuNTc1IDY2LjUgNDkuNSA2NC43Mzc1IDUwLjUgNjMuNTYyNUM1NC4zMTI1IDU5LjA2MjUgNTYuODM3NSA1MS4zIDU2LjgzNzUgNDIuNVpNMS4yNSA0Mi41QzEuMjUgMzUuNzc1IDUuOCAyOS42NjI1IDEzLjE3NSAyNS4yMTI1QzE0Ljc3NSAyNC4yMzc1IDE2LjQ2MjUgMjYuMjc1IDE1LjIgMjcuNjYyNUMxMS4zNzUgMzEuODYyNSA5LjEyNSAzNi45ODc1IDkuMTI1IDQyLjVDOS4xMjUgNDguMDEyNSAxMS4zNzUgNTMuMTI1IDE1LjIgNTcuMzM3NUMxNi40NjI1IDU4LjcyNSAxNC43ODc1IDYwLjc2MjUgMTMuMTc1IDU5Ljc4NzVDNS44IDU1LjMyNSAxLjI1IDQ5LjIyNSAxLjI1IDQyLjVaTTcyLjQ1IDU5LjhDNzAuODUgNjAuNzc1IDY5LjE2MjUgNTguNzM3NSA3MC40MjUgNTcuMzVDNzQuMjUgNTMuMTM3NSA3Ni41IDQ4LjAyNSA3Ni41IDQyLjUxMjVDNzYuNSAzNyA3NC4yNSAzMS44NzUgNzAuNDI1IDI3LjY3NUM2OS4xNjI1IDI2LjI4NzUgNzAuODM3NSAyNC4yNSA3Mi40NSAyNS4yMjVDNzkuODI1IDI5LjY4NzUgODQuMzc1IDM1Ljc4NzUgODQuMzc1IDQyLjUyNUM4NC4zNzUgNDkuMjYyNSA3OS44MjUgNTUuMzYyNSA3Mi40NSA1OS44MjVWNTkuOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik00Mi44MTI0IDBMNDQuNDM3NCAzNy4zMjVDNDQuNTI0OSAzOS4yNSA0Ni4wNjI0IDQwLjc4NzUgNDcuOTg3NCA0MC44NzVMODUuMzEyNCA0Mi41TDQ3Ljk4NzQgNDQuMTI1QzQ2LjA2MjQgNDQuMjEyNSA0NC41MjQ5IDQ1Ljc1IDQ0LjQzNzQgNDcuNjc1TDQyLjgxMjQgODVMNDEuMTg3NCA0Ny42NzVDNDEuMDk5OSA0NS43NSAzOS41NjI0IDQ0LjIxMjUgMzcuNjM3NCA0NC4xMjVMMC4zMTI0MzkgNDIuNUwzNy42Mzc0IDQwLjg3NUMzOS41NjI0IDQwLjc4NzUgNDEuMDk5OSAzOS4yNSA0MS4xODc0IDM3LjMyNUw0Mi44MTI0IDBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" alt="Fossyl Logo">
+    </div>
+
+    <div class="login-header">
+      <h1>Fossyl - Glance</h1>
+      <p>Enter your agent email to receive a secure login link</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email address</label>
+      <input
+        class="input glass-input"
+        type="email"
+        id="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        onkeydown="if(event.key==='Enter') sendLoginLink()"
+      />
+    </div>
+
+    <button class="btn btn-primary primary-cta" id="loginBtn" onclick="sendLoginLink()">
+      <span class="btn-text">Send Login Link</span>
+      <span class="spinner"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════ DASHBOARD ════════ -->
+<div id="dashboard">
+
+  <div class="topbar glass-topbar">
+    <div class="topbar-brand">
+        <!-- Dark Logo (light theme) -->
+      <img class="topbar-logo logo-light" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODYiIGhlaWdodD0iODUiIHZpZXdCb3g9IjAgMCA4NiA4NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQyLjgxMjUgMTYuNTYyNUMxOS4yMTI1IDE2LjU2MjUgMCAyOC4yIDAgNDIuNUMwIDU2LjggMTkuMiA2OC40Mzc1IDQyLjgxMjUgNjguNDM3NUM2Ni40MjUgNjguNDM3NSA4NS42MjUgNTYuOCA4NS42MjUgNDIuNUM4NS42MjUgMjguMiA2Ni40MjUgMTYuNTYyNSA0Mi44MTI1IDE2LjU2MjVaTTI4Ljc4NzUgNDIuNUMyOC43ODc1IDUxLjMgMzEuMzEyNSA1OS4wNSAzNS4xMjUgNjMuNTYyNUMzNi4xMTI1IDY0LjczNzUgMzUuMDM3NSA2Ni41IDMzLjU1IDY2LjE2MjVDMjAuMTYyNSA2My4xMjUgMTAuMzc1IDUzLjY2MjUgMTAuMzc1IDQyLjVDMTAuMzc1IDMxLjMzNzUgMjAuMTYyNSAyMS44ODc1IDMzLjU1IDE4LjgzNzVDMzUuMDUgMTguNSAzNi4xMjUgMjAuMjYyNSAzNS4xMjUgMjEuNDM3NUMzMS4zMTI1IDI1LjkzNzUgMjguNzg3NSAzMy43IDI4Ljc4NzUgNDIuNVpNNDIuODEyNSAxOC41Mzc1QzQ5Ljg2MjUgMTguNTM3NSA1NS41ODc1IDI5LjI4NzUgNTUuNTg3NSA0Mi41QzU1LjU4NzUgNTUuNzEyNSA0OS44NSA2Ni40NjI1IDQyLjgxMjUgNjYuNDYyNUMzNS43NzUgNjYuNDYyNSAzMC4wMzc1IDU1LjcxMjUgMzAuMDM3NSA0Mi41QzMwLjAzNzUgMjkuMjg3NSAzNS43NzUgMTguNTM3NSA0Mi44MTI1IDE4LjUzNzVaTTU2LjgzNzUgNDIuNUM1Ni44Mzc1IDMzLjcgNTQuMzEyNSAyNS45NSA1MC41IDIxLjQzNzVDNDkuNTEyNSAyMC4yNjI1IDUwLjU4NzUgMTguNSA1Mi4wNzUgMTguODM3NUM2NS40NjI1IDIxLjg3NSA3NS4yNSAzMS4zMzc1IDc1LjI1IDQyLjVDNzUuMjUgNTMuNjYyNSA2NS40NjI1IDYzLjExMjUgNTIuMDc1IDY2LjE2MjVDNTAuNTc1IDY2LjUgNDkuNSA2NC43Mzc1IDUwLjUgNjMuNTYyNUM1NC4zMTI1IDU5LjA2MjUgNTYuODM3NSA1MS4zIDU2LjgzNzUgNDIuNVpNMS4yNSA0Mi41QzEuMjUgMzUuNzc1IDUuOCAyOS42NjI1IDEzLjE3NSAyNS4yMTI1QzE0Ljc3NSAyNC4yMzc1IDE2LjQ2MjUgMjYuMjc1IDE1LjIgMjcuNjYyNUMxMS4zNzUgMzEuODYyNSA5LjEyNSAzNi45ODc1IDkuMTI1IDQyLjVDOS4xMjUgNDguMDEyNSAxMS4zNzUgNTMuMTI1IDE1LjIgNTcuMzM3NUMxNi40NjI1IDU4LjcyNSAxNC43ODc1IDYwLjc2MjUgMTMuMTc1IDU5Ljc4NzVDNS44IDU1LjMyNSAxLjI1IDQ5LjIyNSAxLjI1IDQyLjVaTTcyLjQ1IDU5LjhDNzAuODUgNjAuNzc1IDY5LjE2MjUgNTguNzM3NSA3MC40MjUgNTcuMzVDNzQuMjUgNTMuMTM3NSA3Ni41IDQ4LjAyNSA3Ni41IDQyLjUxMjVDNzYuNSAzNyA3NC4yNSAzMS44NzUgNzAuNDI1IDI3LjY3NUM2OS4xNjI1IDI2LjI4NzUgNzAuODM3NSAyNC4yNSA3Mi40NSAyNS4yMjVDNzkuODI1IDI5LjY4NzUgODQuMzc1IDM1Ljc4NzUgODQuMzc1IDQyLjUyNUM4NC4zNzUgNDkuMjYyNSA3OS44MjUgNTUuMzYyNSA3Mi40NSA1OS44MjVWNTkuOFoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik00Mi44MTI0IDBMNDQuNDM3NCAzNy4zMjVDNDQuNTI0OSAzOS4yNSA0Ni4wNjI0IDQwLjc4NzUgNDcuOTg3NCA0MC44NzVMODUuMzEyNCA0Mi41TDQ3Ljk4NzQgNDQuMTI1QzQ2LjA2MjQgNDQuMjEyNSA0NC41MjQ5IDQ1Ljc1IDQ0LjQzNzQgNDcuNjc1TDQyLjgxMjQgODVMNDEuMTg3NCA0Ny42NzVDNDEuMDk5OSA0NS43NSAzOS41NjI0IDQ0LjIxMjUgMzcuNjM3NCA0NC4xMjVMMC4zMTI0MzkgNDIuNUwzNy42Mzc0IDQwLjg3NUMzOS41NjI0IDQwLjc4NzUgNDEuMDk5OSAzOS4yNSA0MS4xODc0IDM3LjMyNUw0Mi44MTI0IDBaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K" alt="Fossyl">
+      <!-- White Logo (dark theme) -->
+      <img class="topbar-logo logo-dark" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODYiIGhlaWdodD0iODUiIHZpZXdCb3g9IjAgMCA4NiA4NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQyLjgxMjUgMTYuNTYyNUMxOS4yMTI1IDE2LjU2MjUgMCAyOC4yIDAgNDIuNUMwIDU2LjggMTkuMiA2OC40Mzc1IDQyLjgxMjUgNjguNDM3NUM2Ni40MjUgNjguNDM3NSA4NS42MjUgNTYuOCA4NS42MjUgNDIuNUM4NS42MjUgMjguMiA2Ni40MjUgMTYuNTYyNSA0Mi44MTI1IDE2LjU2MjVaTTI4Ljc4NzUgNDIuNUMyOC43ODc1IDUxLjMgMzEuMzEyNSA1OS4wNSAzNS4xMjUgNjMuNTYyNUMzNi4xMTI1IDY0LjczNzUgMzUuMDM3NSA2Ni41IDMzLjU1IDY2LjE2MjVDMjAuMTYyNSA2My4xMjUgMTAuMzc1IDUzLjY2MjUgMTAuMzc1IDQyLjVDMTAuMzc1IDMxLjMzNzUgMjAuMTYyNSAyMS44ODc1IDMzLjU1IDE4LjgzNzVDMzUuMDUgMTguNSAzNi4xMjUgMjAuMjYyNSAzNS4xMjUgMjEuNDM3NUMzMS4zMTI1IDI1LjkzNzUgMjguNzg3NSAzMy43IDI4Ljc4NzUgNDIuNVpNNDIuODEyNSAxOC41Mzc1QzQ5Ljg2MjUgMTguNTM3NSA1NS41ODc1IDI5LjI4NzUgNTUuNTg3NSA0Mi41QzU1LjU4NzUgNTUuNzEyNSA0OS44NSA2Ni40NjI1IDQyLjgxMjUgNjYuNDYyNUMzNS43NzUgNjYuNDYyNSAzMC4wMzc1IDU1LjcxMjUgMzAuMDM3NSA0Mi41QzMwLjAzNzUgMjkuMjg3NSAzNS43NzUgMTguNTM3NSA0Mi44MTI1IDE4LjUzNzVaTTU2LjgzNzUgNDIuNUM1Ni44Mzc1IDMzLjcgNTQuMzEyNSAyNS45NSA1MC41IDIxLjQzNzVDNDkuNTEyNSAyMC4yNjI1IDUwLjU4NzUgMTguNSA1Mi4wNzUgMTguODM3NUM2NS40NjI1IDIxLjg3NSA3NS4yNSAzMS4zMzc1IDc1LjI1IDQyLjVDNzUuMjUgNTMuNjYyNSA2NS40NjI1IDYzLjExMjUgNTIuMDc1IDY2LjE2MjVDNTAuNTc1IDY2LjUgNDkuNSA2NC43Mzc1IDUwLjUgNjMuNTYyNUM1NC4zMTI1IDU5LjA2MjUgNTYuODM3NSA1MS4zIDU2LjgzNzUgNDIuNVpNMS4yNSA0Mi41QzEuMjUgMzUuNzc1IDUuOCAyOS42NjI1IDEzLjE3NSAyNS4yMTI1QzE0Ljc3NSAyNC4yMzc1IDE2LjQ2MjUgMjYuMjc1IDE1LjIgMjcuNjYyNUMxMS4zNzUgMzEuODYyNSA5LjEyNSAzNi45ODc1IDkuMTI1IDQyLjVDOS4xMjUgNDguMDEyNSAxMS4zNzUgNTMuMTI1IDE1LjIgNTcuMzM3NUMxNi40NjI1IDU4LjcyNSAxNC43ODc1IDYwLjc2MjUgMTMuMTc1IDU5Ljc4NzVDNS44IDU1LjMyNSAxLjI1IDQ5LjIyNSAxLjI1IDQyLjVaTTcyLjQ1IDU5LjhDNzAuODUgNjAuNzc1IDY5LjE2MjUgNTguNzM3NSA3MC40MjUgNTcuMzVDNzQuMjUgNTMuMTM3NSA3Ni41IDQ4LjAyNSA3Ni41IDQyLjUxMjVDNzYuNSAzNyA3NC4yNSAzMS44NzUgNzAuNDI1IDI3LjY3NUM2OS4xNjI1IDI2LjI4NzUgNzAuODM3NSAyNC4yNSA3Mi40NSAyNS4yMjVDNzkuODI1IDI5LjY4NzUgODQuMzc1IDM1Ljc4NzUgODQuMzc1IDQyLjUyNUM4NC4zNzUgNDkuMjYyNSA3OS44MjUgNTUuMzYyNSA3Mi40NSA1OS44MjVWNTkuOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik00Mi44MTI0IDBMNDQuNDM3NCAzNy4zMjVDNDQuNTI0OSAzOS4yNSA0Ni4wNjI0IDQwLjc4NzUgNDcuOTg3NCA0MC44NzVMODUuMzEyNCA0Mi41TDQ3Ljk4NzQgNDQuMTI1QzQ2LjA2MjQgNDQuMjEyNSA0NC41MjQ5IDQ1Ljc1IDQ0LjQzNzQgNDcuNjc1TDQyLjgxMjQgODVMNDEuMTg3NCA0Ny42NzVDNDEuMDk5OSA0NS43NSAzOS41NjI0IDQ0LjIxMjUgMzcuNjM3NCA0NC4xMjVMMC4zMTI0MzkgNDIuNUwzNy42Mzc0IDQwLjg3NUMzOS41NjI0IDQwLjc4NzUgNDEuMDk5OSAzOS4yNSA0MS4xODc0IDM3LjMyNUw0Mi44MTI0IDBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" alt="Fossyl">
+
+      <span class="topbar-title">Fossyl - Glance</span>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn btn-ghost glass-button" onclick="logout()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/>
+        </svg>
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="toolbar">
+      <div class="search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+        </svg>
+        <input
+          class="input-search glass-input"
+          id="search"
+          type="tel"
+          placeholder="Search by phone number…"
+          oninput="searchLeads()"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Filter Button -->
+      <div class="filter-wrapper" id="filterWrapper">
+        <button class="btn-filter" id="filterBtn" onclick="toggleFilterDropdown()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"/>
+          </svg>
+          Filter
+          <span class="filter-count" id="filterCount" style="display:none">0</span>
+        </button>
+        <div class="filter-dropdown" id="filterDropdown">
+          <div class="filter-dropdown-header">
+            <span>Property ID</span>
+            <button class="filter-clear-btn" onclick="clearFilters()">Clear all</button>
+          </div>
+          <ul class="filter-list" id="filterList"></ul>
+        </div>
+      </div>
+
+      <span class="row-count glass-panel" id="rowCount">0 high intent leads</span>
+    </div>
+
+    <div class="table-card glass-panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Phone Number</th>
+              <th>Name</th>
+              <th>Properties</th>
+            </tr>
+          </thead>
+          <tbody id="leadTable"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+          <p>No leads found</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // ── Theme ──
+  function getStoredTheme() {
+    return localStorage.getItem('fossyl-theme') || 'light';
+  }
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('fossyl-theme', theme);
+    updateFavicon(theme);
+  }
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  }
+
+  // ── Favicon ──
+  function updateFavicon(theme) {
+    const link = document.getElementById('favicon-link');
+    const brandSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="86" height="85" viewBox="0 0 86 85" fill="none"><path d="M42.8125 16.5625C19.2125 16.5625 0 28.2 0 42.5C0 56.8 19.2 68.4375 42.8125 68.4375C66.425 68.4375 85.625 56.8 85.625 42.5C85.625 28.2 66.425 16.5625 42.8125 16.5625ZM28.7875 42.5C28.7875 51.3 31.3125 59.05 35.125 63.5625C36.1125 64.7375 35.0375 66.5 33.55 66.1625C20.1625 63.125 10.375 53.6625 10.375 42.5C10.375 31.3375 20.1625 21.8875 33.55 18.8375C35.05 18.5 36.125 20.2625 35.125 21.4375C31.3125 25.9375 28.7875 33.7 28.7875 42.5ZM42.8125 18.5375C49.8625 18.5375 55.5875 29.2875 55.5875 42.5C55.5875 55.7125 49.85 66.4625 42.8125 66.4625C35.775 66.4625 30.0375 55.7125 30.0375 42.5C30.0375 29.2875 35.775 18.5375 42.8125 18.5375ZM56.8375 42.5C56.8375 33.7 54.3125 25.95 50.5 21.4375C49.5125 20.2625 50.5875 18.5 52.075 18.8375C65.4625 21.875 75.25 31.3375 75.25 42.5C75.25 53.6625 65.4625 63.1125 52.075 66.1625C50.575 66.5 49.5 64.7375 50.5 63.5625C54.3125 59.0625 56.8375 51.3 56.8375 42.5ZM1.25 42.5C1.25 35.775 5.8 29.6625 13.175 25.2125C14.775 24.2375 16.4625 26.275 15.2 27.6625C11.375 31.8625 9.125 36.9875 9.125 42.5C9.125 48.0125 11.375 53.125 15.2 57.3375C16.4625 58.725 14.7875 60.7625 13.175 59.7875C5.8 55.325 1.25 49.225 1.25 42.5ZM72.45 59.8C70.85 60.775 69.1625 58.7375 70.425 57.35C74.25 53.1375 76.5 48.025 76.5 42.5125C76.5 37 74.25 31.875 70.425 27.675C69.1625 26.2875 70.8375 24.25 72.45 25.225C79.825 29.6875 84.375 35.7875 84.375 42.525C84.375 49.2625 79.825 55.3625 72.45 59.825V59.8Z" fill="%235600c2"/><path d="M42.8124 0L44.4374 37.325C44.5249 39.25 46.0624 40.7875 47.9874 40.875L85.3124 42.5L47.9874 44.125C46.0624 44.2125 44.5249 45.75 44.4374 47.675L42.8124 85L41.1874 47.675C41.0999 45.75 39.5624 44.2125 37.6374 44.125L0.312439 42.5L37.6374 40.875C39.5624 40.7875 41.0999 39.25 41.1874 37.325L42.8124 0Z" fill="%235600c2"/></svg>`;
+    link.href = 'data:image/svg+xml,' + brandSvg;
+  }
+
+  // Init theme on load
+  applyTheme(getStoredTheme());
+
+  // ── Toast System ──
+  window.showToast = function(message, type = 'info', title = null) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} glass-panel`;
+
+    const titles = { info: 'Info', success: 'Success', error: 'Error', warning: 'Warning' };
+    const icons = {
+      info: `<svg class="toast-icon info" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>`,
+      success: `<svg class="toast-icon success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>`,
+      error: `<svg class="toast-icon error" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>`,
+      warning: `<svg class="toast-icon warning" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>`,
+    };
+
+    toast.innerHTML = `
+      ${icons[type] || icons.info}
+      <div class="toast-body">
+        <div class="toast-title">${title || titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" onclick="dismissToast(this.parentElement)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="toast-progress"></div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => dismissToast(toast), 4000);
+  };
+
+  window.dismissToast = function(toast) {
+    if (!toast || !toast.parentElement) return;
+    toast.style.animation = 'toastOut 0.25s ease forwards';
+    setTimeout(() => toast.remove(), 250);
+  };
+
+  window.alert = function(msg) {
+    const lower = (msg || '').toLowerCase();
+    let type = 'info';
+    if (lower.includes('error') || lower.includes('unable') || lower.includes('invalid') || lower.includes('failed')) type = 'error';
+    else if (lower.includes('not enrolled') || lower.includes('not found')) type = 'warning';
+    else if (lower.includes('sent') || lower.includes('success')) type = 'success';
+    showToast(msg, type);
+  };
+
+  // ── Filter System ──
+  window._activeFilters = new Set();
+
+  window.toggleFilterDropdown = function() {
+    const dd = document.getElementById('filterDropdown');
+    dd.classList.toggle('open');
+    if (dd.classList.contains('open')) {
+      buildFilterList();
+    }
+  };
+
+  // Close dropdown on outside click
+  document.addEventListener('click', function(e) {
+    const wrapper = document.getElementById('filterWrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      document.getElementById('filterDropdown')?.classList.remove('open');
+    }
+  });
+
+  window.buildFilterList = function() {
+    const rows = document.querySelectorAll('#leadTable tr');
+    const counts = {};
+    rows.forEach(row => {
+      const chips = row.querySelectorAll('.chip');
+      chips.forEach(chip => {
+        const id = chip.textContent.trim();
+        counts[id] = (counts[id] || 0) + 1;
+      });
+    });
+
+    const ids = Object.keys(counts).sort();
+    const list = document.getElementById('filterList');
+    list.innerHTML = '';
+
+    if (ids.length === 0) {
+      list.innerHTML = '<li style="padding:12px 16px;font-size:13px;color:var(--text-muted);">No properties available</li>';
+      return;
+    }
+
+    ids.forEach(id => {
+      const li = document.createElement('li');
+      li.className = 'filter-item';
+      const cbId = 'filter_' + id.replace(/\s+/g, '_');
+      li.innerHTML = `
+        <input type="checkbox" id="${cbId}" ${window._activeFilters.has(id) ? 'checked' : ''} onchange="toggleFilter('${id}', this.checked)">
+        <label for="${cbId}">${id}</label>
+        <span class="filter-item-count">${counts[id]}</span>
+      `;
+      list.appendChild(li);
+    });
+  };
+
+  window.toggleFilter = function(id, checked) {
+    if (checked) window._activeFilters.add(id);
+    else window._activeFilters.delete(id);
+    applyFilters();
+    updateFilterUI();
+  };
+
+  window.clearFilters = function() {
+    window._activeFilters.clear();
+    applyFilters();
+    updateFilterUI();
+    buildFilterList();
+  };
+
+  window.updateFilterUI = function() {
+    const count = window._activeFilters.size;
+    const btn = document.getElementById('filterBtn');
+    const badge = document.getElementById('filterCount');
+    if (count > 0) {
+      btn.classList.add('active');
+      badge.style.display = 'inline-block';
+      badge.textContent = count;
+    } else {
+      btn.classList.remove('active');
+      badge.style.display = 'none';
+    }
+  };
+
+  window.applyFilters = function() {
+    const rows = document.querySelectorAll('#leadTable tr');
+    let visible = 0;
+    rows.forEach(row => {
+      if (window._activeFilters.size === 0) {
+        row.style.display = '';
+        visible++;
+        return;
+      }
+      const chips = row.querySelectorAll('.chip');
+      const rowIds = Array.from(chips).map(c => c.textContent.trim());
+      const match = Array.from(window._activeFilters).every(f => rowIds.includes(f));
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    // Update row count if element exists
+    const rc = document.getElementById('rowCount');
+    if (rc) {
+      const total = rows.length;
+      rc.textContent = window._activeFilters.size > 0
+        ? `${visible} of ${total} leads`
+        : `${total} high intent lead${total !== 1 ? 's' : ''}`;
+    }
+    // Show/hide empty state
+    const empty = document.getElementById('emptyState');
+    if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+  };
+
+  // Re-build filter list whenever leads are rendered (hook into MutationObserver)
+  const _filterObs = new MutationObserver(() => {
+    if (document.getElementById('filterDropdown')?.classList.contains('open')) {
+      buildFilterList();
+    }
+  });
+  const _tableBody = document.getElementById('leadTable');
+  if (_tableBody) _filterObs.observe(_tableBody, { childList: true, subtree: true });
+</script>
+</body>
+</html>

@@ -582,19 +582,23 @@ td:nth-child(2) {
 /* Metadata Tag Pill Chips */
 .chip {
   display: inline-flex;
-  align-items: center;
-  padding: 4px 11px;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
   border-radius: var(--radius-pill);
-  background: var(--chip-bg);
-  color: var(--chip-text);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   margin: 2px 4px 2px 0;
-  border: 1px solid rgba(86, 0, 194, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 [data-theme="dark"] .chip {
-  border-color: rgba(167, 139, 250, 0.25);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: none;
 }
 
 /* Empty Status Display */
@@ -898,6 +902,79 @@ td:nth-child(2) {
 .filter-dropdown::-webkit-scrollbar { width: 4px; }
 .filter-dropdown::-webkit-scrollbar-track { background: transparent; }
 .filter-dropdown::-webkit-scrollbar-thumb { background: var(--border-input); border-radius: 2px; }
+
+/* ── Intent Score Badge ── */
+.intent-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  border: none;
+}
+.intent-high { background: #065f46; }
+.intent-mid  { background: #92400e; }
+.intent-low  { background: #991b1b; }
+
+/* ── Chip internals: two-tone split pill ── */
+.chip-name {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px 4px 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.chip-score {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px 3px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: var(--brand);
+  color: #ffffff;
+  border-left: none;
+}
+[data-theme="dark"] .chip-score {
+  background: rgba(167, 139, 250, 0.30);
+  color: #e9d5ff;
+}
+
+/* ── Hidden chips (beyond top 5) ── */
+.chip-hidden {
+  display: none;
+}
+.chip-container.expanded .chip-hidden {
+  display: inline-flex;
+}
+
+/* ── Expand / collapse button ── */
+.chip-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px dashed var(--border-input);
+  background: transparent;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  margin: 2px 0;
+  white-space: nowrap;
+}
+.chip-expand-btn:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--brand-light);
+}
 
 /* ── Screen Breakpoints ── */
 @media (max-width: 600px) {

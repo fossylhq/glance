@@ -93,8 +93,8 @@
         <input
           class="input-search glass-input"
           id="search"
-          type="tel"
-          placeholder="Search by phone number…"
+          type="text"
+          placeholder="Search by name or phone…"
           oninput="searchLeads()"
           autocomplete="off"
         />
@@ -111,7 +111,7 @@
         </button>
         <div class="filter-dropdown" id="filterDropdown">
           <div class="filter-dropdown-header">
-            <span>Property ID</span>
+            <span>Property</span>
             <button class="filter-clear-btn" onclick="clearFilters()">Clear all</button>
           </div>
           <ul class="filter-list" id="filterList"></ul>
@@ -128,7 +128,8 @@
             <tr>
               <th>Phone Number</th>
               <th>Name</th>
-              <th>Properties</th>
+              <th>Priority</th>
+              <th>Intent</th>
             </tr>
           </thead>
           <tbody id="leadTable"></tbody>
@@ -238,9 +239,9 @@
     const rows = document.querySelectorAll('#leadTable tr');
     const counts = {};
     rows.forEach(row => {
-      const chips = row.querySelectorAll('.chip');
+      const chips = row.querySelectorAll('.chip[data-property-name]');
       chips.forEach(chip => {
-        const id = chip.textContent.trim();
+        const id = chip.dataset.propertyName;
         counts[id] = (counts[id] || 0) + 1;
       });
     });
@@ -304,8 +305,8 @@
         visible++;
         return;
       }
-      const chips = row.querySelectorAll('.chip');
-      const rowIds = Array.from(chips).map(c => c.textContent.trim());
+      const chips = row.querySelectorAll('.chip[data-property-name]');
+      const rowIds = Array.from(chips).map(c => c.dataset.propertyName);
       const match = Array.from(window._activeFilters).every(f => rowIds.includes(f));
       row.style.display = match ? '' : 'none';
       if (match) visible++;

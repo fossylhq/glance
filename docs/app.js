@@ -95,29 +95,51 @@ async function searchLeads() {
 function renderTable(rows) {
   const table = document.getElementById("leadTable");
   const emptyState = document.getElementById("emptyState");
-  
+
   table.innerHTML = "";
 
   if (rows.length === 0) {
     emptyState.style.display = "block";
     return;
   }
-  
+
   emptyState.style.display = "none";
 
   rows.forEach(row => {
     const tr = document.createElement("tr");
-    const propertyHtml = (row.property_ids || [])
-      .map(propertyId => `<span class="chip">${propertyId}</span>`)
-      .join(" ");
+    const properties = Array.isArray(row.properties) ? row.properties : [];
+
+    const intentClass = row.intent_score >= 70 ? "intent-high"
+                      : row.intent_score >= 40 ? "intent-mid"
+                      : "intent-low";
+
+    const chipsHtml = properties.map((p, i) => {
+      const hidden = i >= 5 ? " chip-hidden" : "";
+      return `<span class="chip${hidden}" data-property-code="${p.property_code}" data-property-name="${p.property_name || p.property_code}">` +
+        `<span class="chip-name">${p.property_name || p.property_code}</span>` +
+        `<span class="chip-score">${p.score}</span>` +
+        `</span>`;
+    }).join("");
+
+    const extraCount = properties.length - 5;
+    const expandBtn = extraCount > 0
+      ? `<button class="chip-expand-btn" onclick="toggleExpand(this)" data-extra="${extraCount}">+${extraCount} more</button>`
+      : "";
 
     tr.innerHTML = `
       <td>${row.phone_number}</td>
       <td>${row.name || ""}</td>
-      <td>${propertyHtml}</td>
+      <td><span class="intent-badge ${intentClass}">${row.intent_score}</span></td>
+      <td><div class="chip-container">${chipsHtml}${expandBtn}</div></td>
     `;
     table.appendChild(tr);
   });
+}
+
+function toggleExpand(btn) {
+  const container = btn.closest(".chip-container");
+  const isExpanded = container.classList.toggle("expanded");
+  btn.textContent = isExpanded ? "Show less" : `+${btn.dataset.extra} more`;
 }
 
 async function logout() {

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/svg+xml" id="favicon-link">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -85,65 +86,161 @@
   </div>
 
   <div class="main-content">
-    <div class="toolbar">
-      <div class="search-wrapper">
-        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
-        </svg>
-        <input
-          class="input-search glass-input"
-          id="search"
-          type="text"
-          placeholder="Search by name or phone…"
-          oninput="searchLeads()"
-          autocomplete="off"
-        />
-      </div>
+  <div class="dashboard-wrapper">
 
-      <!-- Filter Button -->
-      <div class="filter-wrapper" id="filterWrapper">
-        <button class="btn-filter" id="filterBtn" onclick="toggleFilterDropdown()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"/>
-          </svg>
-          Filter
-          <span class="filter-count" id="filterCount" style="display:none">0</span>
-        </button>
-        <div class="filter-dropdown" id="filterDropdown">
-          <div class="filter-dropdown-header">
-            <span>Property</span>
-            <button class="filter-clear-btn" onclick="clearFilters()">Clear all</button>
+    <!-- ── Analytics Panel ── -->
+    <aside class="analytics-panel">
+
+      <div class="analytics-header">
+        <div class="builder-meta">
+          <div class="builder-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z"/>
+            </svg>
           </div>
-          <ul class="filter-list" id="filterList"></ul>
+          <div class="builder-info">
+            <span class="builder-label">Builder</span>
+            <h2 class="builder-name" id="builderName">—</h2>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-stat">
+            <span class="kpi-value" id="kpiLeads">—</span>
+            <span class="kpi-label">Leads</span>
+          </div>
+          <div class="kpi-stat">
+            <span class="kpi-value kpi-accent" id="kpiHotLeads">—</span>
+            <span class="kpi-label">Hot</span>
+          </div>
+          <div class="kpi-stat">
+            <span class="kpi-value" id="kpiAvgTime">—</span>
+            <span class="kpi-label">Avg Session</span>
+          </div>
+          <div class="kpi-stat">
+            <span class="kpi-value" id="kpiProperties">—</span>
+            <span class="kpi-label">Properties</span>
+          </div>
         </div>
       </div>
 
-      <span class="row-count glass-panel" id="rowCount">0 high intent leads</span>
-    </div>
+      <div class="analytics-charts-grid">
 
-    <div class="table-card glass-panel">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Phone Number</th>
-              <th>Name</th>
-              <th>Priority</th>
-              <th>Intent</th>
-            </tr>
-          </thead>
-          <tbody id="leadTable"></tbody>
-        </table>
-        <div class="empty-state" id="emptyState" style="display:none;">
-          <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
+        <div class="chart-card glass-panel">
+          <p class="chart-title">Lead Intent</p>
+          <div class="donut-block">
+            <div class="donut-wrap">
+              <canvas id="intentChart"></canvas>
+              <div class="donut-center">
+                <span class="donut-total" id="donutTotal">—</span>
+                <span class="donut-sub">leads</span>
+              </div>
+            </div>
+            <div class="donut-legend" id="intentLegend"></div>
+          </div>
+        </div>
+
+        <div class="chart-card glass-panel">
+          <p class="chart-title">Engagement Events</p>
+          <div class="event-list-wrap">
+            <div class="event-list">
+              <div class="event-item">
+                <span class="event-label">Floor Plan Views</span>
+                <div class="event-bar-wrap"><div class="event-bar" id="eventBarFloor"></div></div>
+                <span class="event-count" id="eventFloorCount">—</span>
+              </div>
+              <div class="event-item">
+                <span class="event-label">Agent Card Views</span>
+                <div class="event-bar-wrap"><div class="event-bar" id="eventBarAgent"></div></div>
+                <span class="event-count" id="eventAgentCount">—</span>
+              </div>
+              <div class="event-item">
+                <span class="event-label">WhatsApp Clicks</span>
+                <div class="event-bar-wrap"><div class="event-bar event-bar-wa" id="eventBarWa"></div></div>
+                <span class="event-count" id="eventWaCount">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card glass-panel">
+          <p class="chart-title">Activity — Last 30 Days</p>
+          <div class="line-wrap"><canvas id="activityChart"></canvas></div>
+        </div>
+
+        <div class="chart-card glass-panel">
+          <p class="chart-title">Top Properties</p>
+          <div class="bar-wrap"><canvas id="propertiesChart"></canvas></div>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- ── Leads Panel ── -->
+    <div class="leads-panel">
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
           </svg>
-          <p>No leads found</p>
+          <input
+            class="input-search glass-input"
+            id="search"
+            type="text"
+            placeholder="Search by name or phone…"
+            oninput="searchLeads()"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="filter-wrapper" id="filterWrapper">
+          <button class="btn-filter" id="filterBtn" onclick="toggleFilterDropdown()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"/>
+            </svg>
+            Filter
+            <span class="filter-count" id="filterCount" style="display:none">0</span>
+          </button>
+          <div class="filter-dropdown" id="filterDropdown">
+            <div class="filter-dropdown-header">
+              <span>Property</span>
+              <button class="filter-clear-btn" onclick="clearFilters()">Clear all</button>
+            </div>
+            <ul class="filter-list" id="filterList"></ul>
+          </div>
+        </div>
+
+        <span class="row-count glass-panel" id="rowCount">0 leads</span>
+      </div>
+
+      <div class="table-card glass-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Phone Number</th>
+                <th>Name</th>
+                <th>Priority</th>
+                <th>Properties with Intent Score</th>
+              </tr>
+            </thead>
+            <tbody id="leadTable"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState" style="display:none;">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
+            </svg>
+            <p>No leads found</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+  </div><!-- /.dashboard-wrapper -->
+  </div><!-- /.main-content -->
 </div>
+
+<div id="chip-tooltip" role="tooltip"></div>
 
 <script src="app.js"></script>
 <script>
@@ -155,6 +252,7 @@
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('fossyl-theme', theme);
     updateFavicon(theme);
+    if (typeof window.updateChartTheme === 'function') window.updateChartTheme();
   }
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
@@ -332,6 +430,50 @@
   });
   const _tableBody = document.getElementById('leadTable');
   if (_tableBody) _filterObs.observe(_tableBody, { childList: true, subtree: true });
+
+  // ── Chip tooltip ──
+  (function() {
+    const tt = document.getElementById('chip-tooltip');
+
+    document.addEventListener('mouseover', function(e) {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+
+      const chipName = chip.querySelector('.chip-name');
+      if (!chipName || chipName.scrollWidth <= chipName.offsetWidth + 1) return;
+
+      const name = chip.dataset.propertyName;
+      if (!name) return;
+
+      tt.textContent = name;
+      tt.classList.remove('visible');
+
+      // Measure tooltip before positioning
+      tt.style.visibility = 'hidden';
+      tt.style.display = 'block';
+      const ttW = tt.offsetWidth;
+      const ttH = tt.offsetHeight;
+      tt.style.display = '';
+      tt.style.visibility = '';
+
+      const rect = chip.getBoundingClientRect();
+      let left = rect.left + rect.width / 2 - ttW / 2;
+      let top  = rect.top  - ttH - 8;
+
+      // Clamp within viewport
+      left = Math.max(8, Math.min(left, window.innerWidth  - ttW - 8));
+      if (top < 8) top = rect.bottom + 8;
+
+      tt.style.left = left + 'px';
+      tt.style.top  = top  + 'px';
+      tt.classList.add('visible');
+    });
+
+    document.addEventListener('mouseout', function(e) {
+      if (!e.target.closest('.chip')) return;
+      tt.classList.remove('visible');
+    });
+  })();
 </script>
 </body>
 </html>

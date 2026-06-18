@@ -1328,7 +1328,8 @@ td:nth-child(2) {
 
 /* ── Tablet: ≤960px — stack panels, switch to page scroll ── */
 @media (max-width: 960px) {
-  body { overflow: auto; }
+  html { height: auto; }
+  body { height: auto; min-height: 100vh; min-height: 100svh; overflow: auto; }
 
   #dashboard { height: auto; overflow: visible; }
 

@@ -145,6 +145,7 @@ function toggleExpand(btn) {
 // ── Analytics ──────────────────────────────────────────────────
 let _lastAnalyticsData = null;
 const _charts = {};
+let _propsAbort = null;
 
 function _isDark() {
   return document.documentElement.getAttribute("data-theme") === "dark";
@@ -313,13 +314,16 @@ function _renderActivityChart(dailyData) {
 
 function _renderPropertiesChart(topProps) {
   if (_charts.properties) _charts.properties.destroy();
+  if (_propsAbort) { _propsAbort.abort(); _propsAbort = null; }
+
   const canvas = document.getElementById("propertiesChart");
   if (!canvas) return;
   const c = _chartColors();
 
-  const props  = (topProps || []).slice(0, 5);
-  const labels = props.map(p => p.name.length > 20 ? p.name.slice(0, 18) + "…" : p.name);
-  const values = props.map(p => p.visits);
+  const props     = (topProps || []).slice(0, 5);
+  const fullNames = props.map(p => p.name);
+  const labels    = props.map(p => p.name.length > 20 ? p.name.slice(0, 18) + "…" : p.name);
+  const values    = props.map(p => p.visits);
 
   _charts.properties = new Chart(canvas, {
     type: "bar",
@@ -338,7 +342,7 @@ function _renderPropertiesChart(topProps) {
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 500 },
-      plugins: { legend: { display: false }, tooltip: _ttCfg(c) },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
       scales: {
         x: {
           grid:   { color: c.grid },
@@ -354,6 +358,40 @@ function _renderPropertiesChart(topProps) {
       }
     }
   });
+
+  // Show chip-tooltip with full name when a truncated label is hovered
+  const tt = document.getElementById("chip-tooltip");
+  const ac = new AbortController();
+  _propsAbort = ac;
+
+  canvas.addEventListener("mousemove", function(e) {
+    const chart = _charts.properties;
+    if (!chart) { tt.classList.remove("visible"); return; }
+
+    const els = chart.getElementsAtEventForMode(e, "nearest", { intersect: false }, false);
+    if (els && els.length) {
+      const idx = els[0].index;
+      if (fullNames[idx] !== labels[idx]) {
+        tt.innerHTML = `<span style="display:block;font-weight:800">${fullNames[idx]}</span><span style="display:block;font-size:10.5px;margin-top:3px;opacity:0.75">${values[idx]} visit${values[idx] !== 1 ? 's' : ''}</span>`;
+        tt.style.visibility = "hidden";
+        tt.style.display = "block";
+        const ttW = tt.offsetWidth, ttH = tt.offsetHeight;
+        tt.style.display = "";
+        tt.style.visibility = "";
+        let left = e.clientX - ttW / 2;
+        let top  = e.clientY - ttH - 8;
+        left = Math.max(8, Math.min(left, window.innerWidth - ttW - 8));
+        if (top < 8) top = e.clientY + 8;
+        tt.style.left = left + "px";
+        tt.style.top  = top  + "px";
+        tt.classList.add("visible");
+        return;
+      }
+    }
+    tt.classList.remove("visible");
+  }, { signal: ac.signal });
+
+  canvas.addEventListener("mouseleave", () => tt.classList.remove("visible"), { signal: ac.signal });
 }
 
 function _renderEventStats(events) {

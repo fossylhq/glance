@@ -65,7 +65,7 @@ async function loadLeads() {
   }
 
   const rows = data || [];
-  document.getElementById("rowCount").textContent = `${rows.length} high intent lead${rows.length === 1 ? '' : 's'}`;
+  document.getElementById("rowCount").textContent = `${rows.length} lead${rows.length === 1 ? '' : 's'}`;
   renderTable(rows);
 }
 
@@ -88,7 +88,7 @@ async function searchLeads() {
   }
 
   const rows = data || [];
-  document.getElementById("rowCount").textContent = `${rows.length} high intent lead${rows.length === 1 ? '' : 's'}`;
+  document.getElementById("rowCount").textContent = `${rows.length} lead${rows.length === 1 ? '' : 's'}`;
   renderTable(rows);
 }
 

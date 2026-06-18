@@ -1401,6 +1401,7 @@ td:nth-child(2) {
   }
   .search-wrapper { flex: 1 1 100%; order: 0; }
   .filter-wrapper { order: 1; flex: none; }
+  .filter-dropdown { right: auto; left: 0; }
   .row-count {
     order: 2;
     flex: 1;

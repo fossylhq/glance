@@ -1357,16 +1357,13 @@ function PropertyFilter({
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "funnel",
     className: "text-ink2"
-  }), "Property", selected.length > 0 && /*#__PURE__*/React.createElement("span", {
+  }), "Filter", selected.length > 0 && /*#__PURE__*/React.createElement("span", {
     className: "ml-0.5 grid place-items-center h-5 min-w-5 px-1 rounded-chip text-[11px] font-bold tnum",
     style: {
       background: "var(--accent)",
       color: "var(--on-accent)"
     }
-  }, selected.length), /*#__PURE__*/React.createElement(Icon, {
-    name: "caret-down",
-    className: "text-ink3 text-xs"
-  })), open && /*#__PURE__*/React.createElement("div", {
+  }, selected.length)), open && /*#__PURE__*/React.createElement("div", {
     className: "absolute z-20 mt-2 left-0 sm:left-auto sm:right-0 w-[calc(100vw-2.5rem)] max-w-[16rem] surface rounded-card p-2 shadow-xl",
     style: {
       boxShadow: "0 12px 40px rgba(0,0,0,0.18)"

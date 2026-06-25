@@ -707,7 +707,7 @@ function LeadsTable() {
     className: "overflow-x-auto -mx-5 px-5"
   }, /*#__PURE__*/React.createElement("table", {
     className: "w-full border-collapse text-sm",
-    style: { tableLayout: "fixed", minWidth: "800px" }
+    style: { tableLayout: "fixed", minWidth: "840px" }
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
     className: "text-left text-[14px] tracking-tight text-ink2"
   }, /*#__PURE__*/React.createElement("th", {
@@ -770,7 +770,7 @@ function LeadsTable() {
     }, /*#__PURE__*/React.createElement(PriorityMeter, {
       score: l.intent
     })), /*#__PURE__*/React.createElement("td", {
-      className: "py-3.5 pr-2"
+      className: "py-3.5 pr-4"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-start gap-2"
     }, /*#__PURE__*/React.createElement("div", {

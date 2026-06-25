@@ -544,22 +544,50 @@ function LeadsTable() {
     });
   }, [debounced]);
 
+  const [archivedIds, setArchivedIds] = useState(() => new Set());
+  const archiveOne = id => {
+    setArchivedIds(prev => new Set([...prev, id]));
+    setSel(prev => { const n = new Set(prev); n.delete(id); return n; });
+  };
+  const archiveSelected = () => {
+    setArchivedIds(prev => new Set([...prev, ...sel]));
+    clearSel();
+  };
+  const activeLeads = useMemo(() => LEADS.filter(l => !archivedIds.has(l.id)), [archivedIds]);
+
   const rows = useMemo(() => {
-    if (selectedProps.length === 0) return serverFiltered;
-    return serverFiltered.filter(l => {
+    const base = selectedProps.length === 0 ? serverFiltered : serverFiltered.filter(l => {
       const names = new Set(l.properties.map(p => p.name));
       return selectedProps.every(p => names.has(p));
     });
-  }, [serverFiltered, selectedProps]);
+    return base.filter(l => !archivedIds.has(l.id));
+  }, [serverFiltered, selectedProps, archivedIds]);
   const toggleProp = p => setSelectedProps(s => s.includes(p) ? s.filter(x => x !== p) : [...s, p]);
+  const [activeTab, setActiveTab] = useState("active");
+  const archivedRows = useMemo(() => {
+    let base = LEADS.filter(l => archivedIds.has(l.id));
+    if (selectedProps.length > 0)
+      base = base.filter(l => { const names = new Set(l.properties.map(p => p.name)); return selectedProps.every(p => names.has(p)); });
+    if (debounced.trim()) {
+      const raw = debounced.toLowerCase();
+      const digits = raw.replace(/\D/g, "");
+      base = base.filter(l => {
+        const nameHit = l.name ? fuzzy(raw.replace(/\s+/g, ""), l.name.toLowerCase().replace(/\s+/g, "")) : false;
+        const phoneHit = digits.length > 0 && fuzzy(digits, l.phone.replace(/\D/g, ""));
+        return nameHit || phoneHit;
+      });
+    }
+    return base;
+  }, [archivedIds, debounced, selectedProps]);
+  const displayRows = activeTab === "active" ? rows : archivedRows;
 
   const [sel, setSel] = useState(() => new Set());
   const [composer, setComposer] = useState(false);
-  const allSelected = rows.length > 0 && rows.every(r => sel.has(r.id));
-  const someSelected = rows.some(r => sel.has(r.id)) && !allSelected;
+  const allSelected = displayRows.length > 0 && displayRows.every(r => sel.has(r.id));
+  const someSelected = displayRows.some(r => sel.has(r.id)) && !allSelected;
   const toggleAll = () => setSel(prev => {
     const next = new Set(prev);
-    if (allSelected) rows.forEach(r => next.delete(r.id));else rows.forEach(r => next.add(r.id));
+    if (allSelected) displayRows.forEach(r => next.delete(r.id));else displayRows.forEach(r => next.add(r.id));
     return next;
   });
   const toggleOne = id => setSel(prev => {
@@ -568,6 +596,14 @@ function LeadsTable() {
     return n;
   });
   const clearSel = () => setSel(new Set());
+  const unarchiveOne = id => {
+    setArchivedIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+    setSel(prev => { const n = new Set(prev); n.delete(id); return n; });
+  };
+  const unarchiveSelected = () => {
+    setArchivedIds(prev => { const n = new Set(prev); sel.forEach(id => n.delete(id)); return n; });
+    clearSel();
+  };
   const selectedLeads = LEADS.filter(l => sel.has(l.id));
   const [stages, setStages] = useState(DEFAULT_STAGES);
   const [leadStatus, setLeadStatus] = useState({});
@@ -579,7 +615,7 @@ function LeadsTable() {
       className: "flex flex-wrap items-center gap-2.5 w-full sm:w-auto"
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-xs text-ink2 tnum whitespace-nowrap order-1"
-    }, rows.length, " of ", LEADS.length, " shown"), /*#__PURE__*/React.createElement("div", {
+    }, displayRows.length, " of ", activeTab === "active" ? activeLeads.length : archivedIds.size, " shown"), /*#__PURE__*/React.createElement("div", {
       className: "flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto order-2"
     }, /*#__PURE__*/React.createElement(PropertyFilter, {
       selected: selectedProps,
@@ -604,7 +640,22 @@ function LeadsTable() {
       name: "x",
       className: "text-sm"
     })))))
-  }, selectedProps.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center hairline -mx-5 px-5",
+    style: { borderBottom: "1px solid var(--line)", marginBottom: "16px" }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "text-sm font-semibold transition-colors " + (activeTab === "active" ? "text-ink" : "text-ink3 hover:text-ink2"),
+    style: { paddingBottom: "10px", paddingRight: "16px", borderBottom: activeTab === "active" ? "2px solid var(--ink)" : "none", marginBottom: "-1px" },
+    onClick: () => { setActiveTab("active"); clearSel(); }
+  }, "Active ", /*#__PURE__*/React.createElement("span", {
+    style: { fontSize: "11px", fontWeight: 400, marginLeft: "4px", color: activeTab === "active" ? "var(--ink-2)" : "var(--ink-3)" }
+  }, activeLeads.length)), /*#__PURE__*/React.createElement("button", {
+    className: "text-sm font-semibold transition-colors " + (activeTab === "archived" ? "text-ink" : "text-ink3 hover:text-ink2"),
+    style: { paddingBottom: "10px", paddingRight: "16px", borderBottom: activeTab === "archived" ? "2px solid var(--ink)" : "none", marginBottom: "-1px" },
+    onClick: () => { setActiveTab("archived"); clearSel(); }
+  }, "Archived ", /*#__PURE__*/React.createElement("span", {
+    style: { fontSize: "11px", fontWeight: 400, marginLeft: "4px", color: activeTab === "archived" ? "var(--ink-2)" : "var(--ink-3)" }
+  }, archivedIds.size))), selectedProps.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap items-center gap-2 pb-3 -mt-1"
   }, selectedProps.map(p => /*#__PURE__*/React.createElement("button", {
     key: p,
@@ -626,10 +677,26 @@ function LeadsTable() {
     size: 16
   }), " ", /*#__PURE__*/React.createElement("span", {
     className: "truncate"
-  }, "Send WhatsApp broadcast")), /*#__PURE__*/React.createElement("button", {
+  }, "Send WhatsApp broadcast")), activeTab === "active" ? /*#__PURE__*/React.createElement("button", {
+    onClick: archiveSelected,
+    className: "flex items-center justify-center gap-1.5 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "archive",
+    weight: "thin",
+    className: "text-base"
+  }), " Archive") : /*#__PURE__*/React.createElement("button", {
+    onClick: unarchiveSelected,
+    className: "flex items-center justify-center gap-1.5 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "arrow-counter-clockwise",
+    weight: "thin",
+    className: "text-base"
+  }), " Unarchive"), /*#__PURE__*/React.createElement("button", {
     onClick: clearSel,
     className: "rounded-ctl border hairline px-3 py-2 text-sm text-ink2 hover:text-ink tap surface"
-  }, "Clear"))), searching ? /*#__PURE__*/React.createElement(TableSkeleton, null) : rows.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
+  }, "Clear"))), /*#__PURE__*/React.createElement("div", {
+    style: { minHeight: "500px" }
+  }, searching ? /*#__PURE__*/React.createElement(TableSkeleton, null) : displayRows.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     query: debounced,
     props: selectedProps,
     onReset: () => {
@@ -662,7 +729,7 @@ function LeadsTable() {
     style: { width: "185px" }
   }, "Priority"), /*#__PURE__*/React.createElement("th", {
     className: "font-bold pb-3"
-  }, "Likely to Buy"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((l, i) => {
+  }, "Likely to Buy"))), /*#__PURE__*/React.createElement("tbody", null, displayRows.map((l, i) => {
     const checked = sel.has(l.id);
     return /*#__PURE__*/React.createElement("tr", {
       key: l.id,
@@ -698,33 +765,58 @@ function LeadsTable() {
       stageQuery,
       setStageQuery
     }), /*#__PURE__*/React.createElement("td", {
-      className: "py-3.5 pr-4 whitespace-nowrap"
+      className: "py-3.5 pr-4 whitespace-nowrap",
+      style: { verticalAlign: "middle" }
     }, /*#__PURE__*/React.createElement(PriorityMeter, {
       score: l.intent
     })), /*#__PURE__*/React.createElement("td", {
-      className: "py-3.5"
+      className: "py-3.5 pr-2"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "flex flex-wrap gap-1.5"
-    }, [...l.properties].sort((a, b) => b.intent - a.intent).map(p => {
-      const active = selectedProps.includes(p.name);
-      return /*#__PURE__*/React.createElement("span", {
-        key: p.name,
-        className: "inline-flex items-center gap-1.5 rounded-chip px-2 py-1 text-xs",
-        style: {
-          background: "var(--surface-2)",
-          boxShadow: active ? "inset 0 0 0 1.5px var(--ink)" : "inset 0 0 0 1px var(--line)"
-        }
-      }, /*#__PURE__*/React.createElement("span", {
-        className: "font-medium text-ink"
-      }, p.name), /*#__PURE__*/React.createElement(PriorityScore, {
-        score: p.intent,
-        className: "text-[11px]"
-      }));
-    }))));
+      className: "flex items-start gap-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-1.5 flex-1 min-w-0 items-center"
+    }, (() => {
+      const sorted = [...l.properties].sort((a, b) => b.intent - a.intent);
+      const visible = sorted.slice(0, 2);
+      const hidden = sorted.slice(2);
+      return [
+        ...visible.map(p => {
+          const active = selectedProps.includes(p.name);
+          return /*#__PURE__*/React.createElement("span", {
+            key: p.name,
+            className: "prop-tip inline-flex items-center gap-1.5 rounded-chip px-2 py-1 text-xs shrink-0",
+            "data-tip": p.name,
+            style: {
+              background: "var(--surface-2)",
+              boxShadow: active ? "inset 0 0 0 1.5px var(--ink)" : "inset 0 0 0 1px var(--line)"
+            }
+          }, /*#__PURE__*/React.createElement("span", {
+            className: "font-medium text-ink",
+            style: { maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+          }, p.name), /*#__PURE__*/React.createElement(PriorityScore, {
+            score: p.intent,
+            className: "text-[11px]"
+          }));
+        }),
+        hidden.length > 0 && /*#__PURE__*/React.createElement("span", {
+          key: "__overflow",
+          className: "prop-tip inline-flex items-center rounded-chip px-2 py-1 text-xs shrink-0",
+          "data-tip": hidden.map(p => p.name + "  " + p.intent).join("\n"),
+          style: { background: "var(--surface-2)", boxShadow: "inset 0 0 0 1px var(--line)", color: "var(--ink-3)", cursor: "default" }
+        }, "+", hidden.length)
+      ];
+    })()), /*#__PURE__*/React.createElement("button", {
+      className: "archive-btn tap",
+      "aria-label": activeTab === "active" ? "Archive lead" : "Unarchive lead",
+      onClick: e => { e.stopPropagation(); activeTab === "active" ? archiveOne(l.id) : unarchiveOne(l.id); }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: activeTab === "active" ? "archive" : "arrow-counter-clockwise",
+      weight: "thin"
+    })))));
   })))), composer && /*#__PURE__*/React.createElement(BroadcastComposer, {
     leads: selectedLeads,
     onClose: () => setComposer(false)
-  }));
+  })));
 }
 
 /* ============================================================

@@ -85,6 +85,53 @@
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
   .font-serif-display { font-family: 'Manrope', system-ui, sans-serif; }
   .row-hover:hover { background: var(--surface-2); }
+  .archive-btn {
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    color: var(--ink-3); flex-shrink: 0;
+    font-size: 16px;
+    align-self: center;
+    margin-right: 8px;
+  }
+  tr:hover .archive-btn { opacity: 1; }
+  .archive-btn:hover { background: var(--line-2); color: var(--ink); }
+  /* property chip tooltip */
+  .prop-tip { position: relative; }
+  .prop-tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.6;
+    white-space: pre;
+    padding: 5px 9px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 60;
+  }
+  .prop-tip::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 60;
+  }
+  .prop-tip:hover::after, .prop-tip:hover::before { opacity: 1; }
   /* frosted-glass panel for text over a background image */
   .frost {
     background: var(--frost-bg);

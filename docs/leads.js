@@ -673,32 +673,32 @@ function LeadsTable() {
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-xs text-ink tnum"
   }, sel.size, " selected"), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2"
+    className: "flex items-center gap-2 min-w-0"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setComposer(true),
-    className: "flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink ring-ink"
+    className: "flex flex-1 min-w-0 sm:flex-none items-center justify-center gap-2 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink ring-ink"
   }, /*#__PURE__*/React.createElement(WaLogo, {
     size: 16
   }), " ", /*#__PURE__*/React.createElement("span", {
     className: "truncate"
   }, "Send WhatsApp broadcast")), activeTab === "active" ? /*#__PURE__*/React.createElement("button", {
     onClick: archiveSelected,
-    className: "flex items-center justify-center gap-1.5 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
+    className: "shrink-0 flex items-center justify-center gap-1.5 rounded-ctl px-2.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "archive",
     weight: "thin",
     className: "text-base"
-  }), " Archive") : /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", { className: "hidden sm:inline" }, " Archive")) : /*#__PURE__*/React.createElement("button", {
     onClick: unarchiveSelected,
-    className: "flex items-center justify-center gap-1.5 rounded-ctl px-3.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
+    className: "shrink-0 flex items-center justify-center gap-1.5 rounded-ctl px-2.5 py-2 text-sm tap surface border hairline text-ink2 hover:text-ink ring-ink"
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "arrow-counter-clockwise",
     weight: "thin",
     className: "text-base"
-  }), " Unarchive"), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", { className: "hidden sm:inline" }, " Unarchive")), /*#__PURE__*/React.createElement("button", {
     onClick: clearSel,
-    className: "rounded-ctl border hairline px-3 py-2 text-sm text-ink2 hover:text-ink tap surface"
-  }, "Clear"))), /*#__PURE__*/React.createElement("div", {
+    className: "shrink-0 flex items-center justify-center gap-1.5 rounded-ctl border hairline px-2.5 py-2 text-sm text-ink2 hover:text-ink tap surface"
+  }, /*#__PURE__*/React.createElement(Icon, { name: "x", className: "text-base" }), /*#__PURE__*/React.createElement("span", { className: "hidden sm:inline" }, "Clear")))), /*#__PURE__*/React.createElement("div", {
     style: { minHeight: "500px" }
   }, searching ? /*#__PURE__*/React.createElement(TableSkeleton, null) : displayRows.length === 0 ? /*#__PURE__*/React.createElement(Empty, {
     query: debounced,

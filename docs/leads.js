@@ -145,9 +145,15 @@ function StageCell({
   const filtered = stages.filter(s => !stageQuery.trim() || s.label.toLowerCase().includes(stageQuery.toLowerCase()));
   const showCreate = stageQuery.trim() && stageQuery.trim().length <= 30 && !stages.some(s => s.label.toLowerCase() === stageQuery.trim().toLowerCase());
   const handleSelect = label => {
-    setLeadStatus(prev => ({ ...prev, [leadId]: prev[leadId] === label ? null : label }));
+    const isToggleOff = leadStatus[leadId] === label;
+    setLeadStatus(prev => ({ ...prev, [leadId]: isToggleOff ? null : label }));
     setStageOpen(null);
     setStageQuery("");
+    if (isToggleOff) {
+      supabaseClient.rpc("clear_lead_stage", { p_lead_id: leadId }).then(r => { if (r && r.error) console.error(r.error); });
+    } else {
+      supabaseClient.rpc("upsert_lead_stage", { p_lead_id: leadId, p_stage_label: label }).then(r => { if (r && r.error) console.error(r.error); });
+    }
   };
   const handleCreate = () => {
     const newLabel = stageQuery.trim();
@@ -155,9 +161,12 @@ function StageCell({
     setLeadStatus(prev => ({ ...prev, [leadId]: newLabel }));
     setStageOpen(null);
     setStageQuery("");
+    supabaseClient.rpc("upsert_builder_stage", { p_label: newLabel, p_color: "#6B6B71" }).then(r => { if (r && r.error) console.error(r.error); });
+    supabaseClient.rpc("upsert_lead_stage", { p_lead_id: leadId, p_stage_label: newLabel }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const handleColorChange = (stageLabel, colorValue) => {
     setStages(prev => prev.map(s => s.label === stageLabel ? { ...s, color: colorValue } : s));
+    supabaseClient.rpc("upsert_builder_stage", { p_label: stageLabel, p_color: colorValue }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const handleDeleteConfirmed = label => {
     setStages(prev => prev.filter(s => s.label !== label));
@@ -170,6 +179,7 @@ function StageCell({
     setOptionsOpen(null);
     setStageOpen(null);
     setStageQuery("");
+    supabaseClient.rpc("delete_builder_stage", { p_label: label }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const chipStyle = color => ({
     background: color + "22",
@@ -548,14 +558,17 @@ function LeadsTable() {
     });
   }, [debounced]);
 
-  const [archivedIds, setArchivedIds] = useState(() => new Set());
+  const [archivedIds, setArchivedIds] = useState(() => new Set(LEADS.filter(l => l.isArchived).map(l => l.id)));
   const archiveOne = id => {
     setArchivedIds(prev => new Set([...prev, id]));
     setSel(prev => { const n = new Set(prev); n.delete(id); return n; });
+    supabaseClient.rpc("set_lead_archived", { p_lead_id: id, p_archived: true }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const archiveSelected = () => {
-    setArchivedIds(prev => new Set([...prev, ...sel]));
+    const ids = [...sel];
+    setArchivedIds(prev => new Set([...prev, ...ids]));
     clearSel();
+    supabaseClient.rpc("bulk_set_archived", { p_lead_ids: ids, p_archived: true }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const activeLeads = useMemo(() => LEADS.filter(l => !archivedIds.has(l.id)), [archivedIds]);
 
@@ -603,14 +616,21 @@ function LeadsTable() {
   const unarchiveOne = id => {
     setArchivedIds(prev => { const n = new Set(prev); n.delete(id); return n; });
     setSel(prev => { const n = new Set(prev); n.delete(id); return n; });
+    supabaseClient.rpc("set_lead_archived", { p_lead_id: id, p_archived: false }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const unarchiveSelected = () => {
-    setArchivedIds(prev => { const n = new Set(prev); sel.forEach(id => n.delete(id)); return n; });
+    const ids = [...sel];
+    setArchivedIds(prev => { const n = new Set(prev); ids.forEach(id => n.delete(id)); return n; });
     clearSel();
+    supabaseClient.rpc("bulk_set_archived", { p_lead_ids: ids, p_archived: false }).then(r => { if (r && r.error) console.error(r.error); });
   };
   const selectedLeads = LEADS.filter(l => sel.has(l.id));
-  const [stages, setStages] = useState(DEFAULT_STAGES);
-  const [leadStatus, setLeadStatus] = useState({});
+  const [stages, setStages] = useState(() => STAGES.length > 0 ? STAGES : DEFAULT_STAGES);
+  const [leadStatus, setLeadStatus] = useState(() => {
+    const init = {};
+    LEADS.forEach(l => { if (l.stage) init[l.id] = l.stage; });
+    return init;
+  });
   const [stageOpen, setStageOpen] = useState(null);
   const [stageQuery, setStageQuery] = useState("");
   return /*#__PURE__*/React.createElement(Panel, {

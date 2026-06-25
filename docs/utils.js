@@ -61,6 +61,7 @@ let WEEKLY = [{ date: new Date(), sessions: 0 }];
 let TOP_PROPERTIES = [{ name: "—", visits: 0 }];
 let LEADS = [];
 let PROPERTIES = [];
+let STAGES = [];
 
 function groupWeekly(daily) {
   if (!daily || !daily.length) return [];
@@ -74,9 +75,10 @@ function groupWeekly(daily) {
 }
 
 async function loadAppData() {
-  const [analyticsRes, leadsRes] = await Promise.all([
+  const [analyticsRes, leadsRes, stagesRes] = await Promise.all([
     supabaseClient.rpc("get_builder_analytics"),
-    supabaseClient.rpc("get_builder_leads")
+    supabaseClient.rpc("get_builder_leads"),
+    supabaseClient.rpc("get_builder_stages")
   ]);
 
   const d = analyticsRes.data;
@@ -105,20 +107,24 @@ async function loadAppData() {
   }
 
   const rows = leadsRes.data || [];
-  LEADS = rows.map((r, i) => ({
-    id: "ld_" + i,
+  LEADS = rows.map(r => ({
+    id: r.lead_id,
     phone: r.phone_number,
     name: r.name || null,
     intent: r.intent_score,
     properties: (r.properties || []).map(p => ({
       name: p.property_name || p.property_code,
       intent: p.score
-    }))
+    })),
+    stage: r.stage_label || null,
+    isArchived: r.is_archived || false
   }));
 
   const propSet = new Set();
   LEADS.forEach(l => l.properties.forEach(p => propSet.add(p.name)));
   PROPERTIES = Array.from(propSet).sort();
+
+  STAGES = (stagesRes.data || []).map(s => ({ label: s.label, color: s.color }));
 }
 
 /* ============================================================

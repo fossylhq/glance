@@ -72,7 +72,8 @@ function PropertyFilter({
         color: "var(--on-accent)"
       }
     })), /*#__PURE__*/React.createElement("span", {
-      className: "truncate"
+      className: "truncate",
+      onMouseEnter: e => { if (e.currentTarget.scrollWidth > e.currentTarget.offsetWidth) e.currentTarget.setAttribute("title", p); else e.currentTarget.removeAttribute("title"); }
     }, p)));
   })), /*#__PURE__*/React.createElement("div", {
     className: "mt-1 pt-2 border-t hairline"
@@ -298,7 +299,8 @@ function StageCell({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between px-3 py-2 border-b hairline"
   }, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-ink font-semibold truncate flex-1 mr-2 text-left"
+    className: "text-sm text-ink font-semibold truncate flex-1 mr-2 text-left prop-tip",
+    onMouseEnter: e => { if (e.currentTarget.scrollWidth > e.currentTarget.offsetWidth) e.currentTarget.setAttribute("data-tip", optStage.label); else e.currentTarget.removeAttribute("data-tip"); }
   }, optStage.label), /*#__PURE__*/React.createElement("button", {
     className: "tap text-ink3 hover:text-ink shrink-0",
     onClick: e => { e.stopPropagation(); setOptionsOpen(null); setOptPos(null); }
@@ -509,7 +511,8 @@ function BroadcastComposer({
   })), /*#__PURE__*/React.createElement("div", {
     className: "min-w-0 flex-1"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-sm text-ink truncate"
+    className: "text-sm text-ink truncate prop-tip",
+    onMouseEnter: e => { if (e.currentTarget.scrollWidth > e.currentTarget.offsetWidth) e.currentTarget.setAttribute("data-tip", media.name); else e.currentTarget.removeAttribute("data-tip"); }
   }, media.name), /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-ink2 capitalize"
   }, media.type)), /*#__PURE__*/React.createElement("button", {
@@ -619,8 +622,9 @@ function NotesCell({ leadId, leadNotes, setLeadNotes }) {
       },
         note
           ? /*#__PURE__*/React.createElement("span", {
-              className: "text-sm text-ink block",
-              style: { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }
+              className: "text-sm text-ink block prop-tip",
+              style: { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" },
+              onMouseEnter: e => { if (e.currentTarget.scrollHeight > e.currentTarget.clientHeight) e.currentTarget.setAttribute("data-tip", note); else e.currentTarget.removeAttribute("data-tip"); }
             }, note)
           : /*#__PURE__*/React.createElement("span", { className: "text-sm text-ink3 truncate block" }, "Add a note…")
       ),
@@ -1007,9 +1011,9 @@ function LeadsTable() {
     }, /*#__PURE__*/React.createElement(PriorityMeter, {
       score: l.intent
     })), /*#__PURE__*/React.createElement("td", {
-      className: "py-3.5 pr-4 overflow-hidden"
+      className: "py-3.5 pr-4"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "flex gap-1.5 min-w-0 items-center overflow-hidden"
+      className: "flex gap-1.5 min-w-0 items-center"
     }, (() => {
       const sorted = [...l.properties].sort((a, b) => b.intent - a.intent);
       const visible = sorted.slice(0, 1);
@@ -1019,8 +1023,8 @@ function LeadsTable() {
           const active = selectedProps.includes(p.name);
           return /*#__PURE__*/React.createElement("span", {
             key: p.name,
-            className: "prop-tip inline-flex items-center gap-1.5 rounded-chip px-2 py-1 text-xs shrink-0",
-            onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.scrollWidth > inner.offsetWidth) e.currentTarget.setAttribute("data-tip", p.name); else e.currentTarget.removeAttribute("data-tip"); },
+            className: "prop-tip inline-flex items-center gap-1.5 rounded-chip px-2 py-1 text-xs",
+            onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.offsetWidth >= 128) e.currentTarget.setAttribute("data-tip", p.name); else e.currentTarget.removeAttribute("data-tip"); },
             style: {
               background: "var(--surface-2)",
               boxShadow: active ? "inset 0 0 0 1.5px var(--ink)" : "inset 0 0 0 1px var(--line)"

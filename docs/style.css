@@ -170,7 +170,7 @@
   }
 
   /* gentle mount fade */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px) } to { opacity: 1 } }
   .fade-up { animation: fadeUp .45s cubic-bezier(0.16,1,0.3,1) both; }
   @media (prefers-reduced-motion: reduce) { .fade-up { animation: none; } }
 

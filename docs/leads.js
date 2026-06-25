@@ -119,9 +119,12 @@ function StageCell({
   const ref = useRef(null);
   const [optionsOpen, setOptionsOpen] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [popPos, setPopPos] = useState(null);
+  const [optPos, setOptPos] = useState(null);
   useEffect(() => {
     if (stageOpen !== leadId) {
       setOptionsOpen(null);
+      setOptPos(null);
       setDeleteConfirm(null);
     }
   }, [stageOpen, leadId]);
@@ -133,6 +136,7 @@ function StageCell({
         setStageOpen(null);
         setStageQuery("");
         setOptionsOpen(null);
+        setOptPos(null);
         setDeleteConfirm(null);
       }
     };
@@ -194,8 +198,7 @@ function StageCell({
   });
   const optStage = optionsOpen ? stages.find(s => s.label === optionsOpen) : null;
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("td", {
-    className: "py-3.5 px-4 align-middle text-center",
-    style: { width: "140px", minWidth: "140px" },
+    className: "py-3.5 pr-4 align-middle",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
     ref,
@@ -207,6 +210,16 @@ function StageCell({
         setStageOpen(null);
         setStageQuery("");
       } else {
+        if (ref.current) {
+          const r = ref.current.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - r.bottom - 8;
+          const spaceAbove = r.top - 8;
+          if (spaceBelow >= 300 || spaceBelow >= spaceAbove) {
+            setPopPos({ top: r.bottom + 4, left: r.left, maxHeight: spaceBelow });
+          } else {
+            setPopPos({ bottom: window.innerHeight - r.top + 4, left: r.left, maxHeight: spaceAbove });
+          }
+        }
         setStageOpen(leadId);
         setStageQuery("");
       }
@@ -225,15 +238,11 @@ function StageCell({
     name: "plus",
     className: "text-[11px]"
   }))), isOpen && !deleteConfirm && /*#__PURE__*/React.createElement("div", {
-    className: "absolute z-30 mt-1 left-0 surface rounded-card",
-    style: {
-      minWidth: "14rem",
-      boxShadow: "0 12px 40px rgba(0,0,0,0.18)"
-    }
+    className: "surface rounded-card",
+    style: { position: "fixed", top: popPos && popPos.top != null ? popPos.top : undefined, bottom: popPos && popPos.bottom != null ? popPos.bottom : undefined, left: popPos ? popPos.left : 0, zIndex: 200, minWidth: "14rem", boxShadow: "0 12px 40px rgba(0,0,0,0.18)" }
   }, /*#__PURE__*/React.createElement("div", {
     className: "p-1.5 border-b hairline"
   }, /*#__PURE__*/React.createElement("input", {
-    autoFocus: true,
     value: stageQuery,
     onChange: e => setStageQuery(e.target.value),
     maxLength: 30,
@@ -241,7 +250,8 @@ function StageCell({
     className: "w-full text-sm px-2 py-1.5 rounded-ctl surface ring-ink text-ink outline-none",
     onClick: e => e.stopPropagation()
   })), /*#__PURE__*/React.createElement("ul", {
-    className: "max-h-64 overflow-auto py-1"
+    className: "overflow-auto py-1",
+    style: { maxHeight: popPos && popPos.maxHeight ? Math.max(popPos.maxHeight - 52, 80) : "16rem" }
   }, filtered.map(s => /*#__PURE__*/React.createElement("li", {
     key: s.label,
     className: "group flex items-center"
@@ -255,7 +265,23 @@ function StageCell({
     className: "ml-auto text-ink2 text-xs shrink-0"
   })), /*#__PURE__*/React.createElement("button", {
     className: "shrink-0 px-2 py-1.5 text-ink3 opacity-0 group-hover:opacity-100 tap",
-    onClick: e => { e.stopPropagation(); setOptionsOpen(optionsOpen === s.label ? null : s.label); }
+    onClick: e => {
+      e.stopPropagation();
+      if (optionsOpen === s.label) {
+        setOptionsOpen(null);
+        setOptPos(null);
+      } else {
+        const r = e.currentTarget.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - r.top - 8;
+        const spaceAbove = r.bottom - 8;
+        if (spaceBelow >= 300 || spaceBelow >= spaceAbove) {
+          setOptPos({ top: r.top, left: r.right + 6, maxHeight: spaceBelow });
+        } else {
+          setOptPos({ bottom: window.innerHeight - r.bottom, left: r.right + 6, maxHeight: spaceAbove });
+        }
+        setOptionsOpen(s.label);
+      }
+    }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "dots-three",
     className: "text-sm"
@@ -267,19 +293,19 @@ function StageCell({
   }, stageQuery.trim())))),
   optStage && /*#__PURE__*/React.createElement("div", {
     className: "absolute z-40 surface rounded-card",
-    style: { left: "calc(100% + 6px)", top: 0, minWidth: "13rem", boxShadow: "0 8px 32px rgba(0,0,0,0.24)" },
+    style: { position: "fixed", top: optPos && optPos.top != null ? optPos.top : undefined, bottom: optPos && optPos.bottom != null ? optPos.bottom : undefined, left: optPos ? optPos.left : undefined, minWidth: "13rem", maxHeight: optPos && optPos.maxHeight ? optPos.maxHeight : "80vh", overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.24)" },
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between px-3 py-2 border-b hairline"
   }, /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-ink font-semibold truncate flex-1 mr-2"
+    className: "text-sm text-ink font-semibold truncate flex-1 mr-2 text-left"
   }, optStage.label), /*#__PURE__*/React.createElement("button", {
     className: "tap text-ink3 hover:text-ink shrink-0",
-    onClick: e => { e.stopPropagation(); setOptionsOpen(null); }
+    onClick: e => { e.stopPropagation(); setOptionsOpen(null); setOptPos(null); }
   }, /*#__PURE__*/React.createElement(Icon, { name: "x", className: "text-sm" }))), /*#__PURE__*/React.createElement("button", {
     className: "flex items-center gap-2 w-full px-3 py-2 text-sm tap border-b hairline",
     style: { color: "#DC2626" },
-    onClick: e => { e.stopPropagation(); setDeleteConfirm(optStage.label); setOptionsOpen(null); }
+    onClick: e => { e.stopPropagation(); setDeleteConfirm(optStage.label); setOptionsOpen(null); setOptPos(null); }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "trash",
     className: "text-sm"
@@ -529,6 +555,120 @@ function BroadcastComposer({
 }
 
 /* ============================================================
+   NOTES CELL  (Notion-style inline text field per lead row)
+   ============================================================ */
+function NotesCell({ leadId, leadNotes, setLeadNotes }) {
+  const wrapRef   = useRef(null);
+  const taRef     = useRef(null);
+  const [editing, setEditing] = useState(false);
+  const [draft,   setDraft]   = useState("");
+  const [popPos,  setPopPos]  = useState(null);
+
+  const note = leadNotes[leadId] || "";
+
+  const openEditor = e => {
+    e.stopPropagation();
+    const r = wrapRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - r.bottom - 8;
+    const spaceAbove = r.top - 8;
+    const left = Math.min(r.left, window.innerWidth - 296);
+    if (spaceBelow >= 180 || spaceBelow >= spaceAbove) {
+      setPopPos({ top: r.bottom + 2, left });
+    } else {
+      setPopPos({ bottom: window.innerHeight - r.top + 2, left });
+    }
+    setDraft(note);
+    setEditing(true);
+  };
+
+  const save = () => {
+    const trimmed = draft.trim();
+    setEditing(false);
+    if (trimmed === note) return;
+    setLeadNotes(prev => ({ ...prev, [leadId]: trimmed }));
+    supabaseClient.rpc("upsert_lead_note", { p_lead_id: leadId, p_note: trimmed })
+      .then(r => { if (r && r.error) console.error(r.error); });
+  };
+
+  // click-outside saves
+  useEffect(() => {
+    if (!editing) return;
+    const handler = e => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) save();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [editing, draft, note]);
+
+  // focus textarea when popover opens
+  useEffect(() => {
+    if (editing && taRef.current) {
+      taRef.current.focus();
+      taRef.current.selectionStart = taRef.current.value.length;
+    }
+  }, [editing]);
+
+  return /*#__PURE__*/React.createElement("td", {
+    className: "py-3.5 pr-4 align-top overflow-hidden",
+    onClick: e => e.stopPropagation()
+  },
+    /*#__PURE__*/React.createElement("div", { ref: wrapRef, style: { minWidth: 0 } },
+      /*#__PURE__*/React.createElement("button", {
+        onClick: openEditor,
+        className: "w-full text-left tap"
+      },
+        note
+          ? /*#__PURE__*/React.createElement("span", {
+              className: "text-sm text-ink block",
+              style: { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }
+            }, note)
+          : /*#__PURE__*/React.createElement("span", { className: "text-sm text-ink3 truncate block" }, "Add a note…")
+      ),
+      editing && /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "fixed",
+          top: popPos && popPos.top != null ? popPos.top : undefined,
+          bottom: popPos && popPos.bottom != null ? popPos.bottom : undefined,
+          left: popPos ? popPos.left : 0,
+          width: "288px",
+          zIndex: 200
+        },
+        onMouseDown: e => e.stopPropagation()
+      },
+        /*#__PURE__*/React.createElement("div", {
+          className: "surface rounded-card",
+          style: { boxShadow: "0 12px 40px rgba(0,0,0,0.18)" }
+        },
+          /*#__PURE__*/React.createElement("textarea", {
+            ref: taRef,
+            value: draft,
+            onChange: e => setDraft(e.target.value.slice(0, 1000)),
+            className: "w-full text-sm text-ink surface px-3 py-2.5 outline-none resize-none",
+            style: { borderRadius: "4px 4px 0 0", display: "block" },
+            rows: 6,
+            placeholder: "Add a note…",
+            onClick: e => e.stopPropagation(),
+            onKeyDown: e => {
+              if (e.key === "Escape") { setEditing(false); }
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save(); }
+            }
+          }),
+          /*#__PURE__*/React.createElement("div", {
+            className: "flex items-center justify-between px-3 py-1.5 border-t hairline"
+          },
+            /*#__PURE__*/React.createElement("span", { className: "text-[11px] text-ink3 tnum" }, draft.length, "/1000"),
+            /*#__PURE__*/React.createElement("button", {
+              onClick: save,
+              className: "text-[11px] font-semibold tap rounded-ctl px-2 py-0.5 text-ink2 hover:text-ink"
+            }, "Save")
+          )
+        )
+      )
+    )
+  );
+}
+
+/* ============================================================
    LEADS TABLE
    ============================================================ */
 function LeadsTable() {
@@ -596,6 +736,13 @@ function LeadsTable() {
     }
     return base;
   }, [archivedIds, debounced, selectedProps]);
+  const [sortCol, setSortCol] = useState(null);
+  const [sortDir, setSortDir] = useState("asc");
+  const handleSort = col => {
+    if (sortCol === col) { setSortDir(d => d === "asc" ? "desc" : "asc"); }
+    else { setSortCol(col); setSortDir("asc"); }
+  };
+  const resetSort = () => { setSortCol(null); setSortDir("asc"); };
   const displayRows = activeTab === "active" ? rows : archivedRows;
 
   const [sel, setSel] = useState(() => new Set());
@@ -631,8 +778,45 @@ function LeadsTable() {
     LEADS.forEach(l => { if (l.stage) init[l.id] = l.stage; });
     return init;
   });
+  const [leadNotes, setLeadNotes] = useState({});
+  useEffect(() => {
+    const fetchNotes = () => {
+      supabaseClient.from("lead_notes").select("lead_id, note").then(({ data, error }) => {
+        if (error) { console.error(error); return; }
+        if (data && data.length > 0) {
+          const map = {};
+          data.forEach(r => { map[r.lead_id] = r.note; });
+          setLeadNotes(map);
+        }
+      });
+    };
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION" && session) fetchNotes();
+    });
+    return () => subscription.unsubscribe();
+  }, []);
   const [stageOpen, setStageOpen] = useState(null);
   const [stageQuery, setStageQuery] = useState("");
+  const sortedRows = useMemo(() => {
+    if (!sortCol) return displayRows;
+    return [...displayRows].sort((a, b) => {
+      if (sortCol === "stage") {
+        const va = (leadStatus[a.id] || "").toLowerCase();
+        const vb = (leadStatus[b.id] || "").toLowerCase();
+        if (!va && vb) return 1;
+        if (va && !vb) return -1;
+        if (!va && !vb) return 0;
+        return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
+      }
+      const va = a.intent ?? 0;
+      const vb = b.intent ?? 0;
+      return sortDir === "asc" ? va - vb : vb - va;
+    });
+  }, [displayRows, sortCol, sortDir, leadStatus]);
+  useEffect(() => {
+    document.body.style.overflow = stageOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [stageOpen]);
   return /*#__PURE__*/React.createElement(Panel, {
     title: "Leads",
     right: /*#__PURE__*/React.createElement("div", {
@@ -731,7 +915,7 @@ function LeadsTable() {
     className: "overflow-x-auto -mx-5 px-5"
   }, /*#__PURE__*/React.createElement("table", {
     className: "w-full border-collapse text-sm",
-    style: { tableLayout: "fixed", minWidth: "840px" }
+    style: { tableLayout: "fixed", minWidth: "935px" }
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
     className: "text-left text-[14px] tracking-tight text-ink2"
   }, /*#__PURE__*/React.createElement("th", {
@@ -744,16 +928,39 @@ function LeadsTable() {
     label: "Select all leads"
   })), /*#__PURE__*/React.createElement("th", {
     className: "font-bold pb-3 pr-4",
-    style: { width: "180px" }
+    style: { width: "170px" }
   }, "Lead"), /*#__PURE__*/React.createElement("th", {
-    className: "font-bold pb-3 pr-4 whitespace-nowrap text-center",
-    style: { width: "200px" }
-  }, "Stage"), /*#__PURE__*/React.createElement("th", {
     className: "font-bold pb-3 pr-4 whitespace-nowrap",
-    style: { width: "185px" }
-  }, "Priority"), /*#__PURE__*/React.createElement("th", {
-    className: "font-bold pb-3"
-  }, "Likely to Buy"))), /*#__PURE__*/React.createElement("tbody", null, displayRows.map((l, i) => {
+    style: { width: "155px" }
+  }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleSort("stage"),
+      className: "inline-flex items-center gap-2 tap hover:text-ink2"
+    }, "Stage", /*#__PURE__*/React.createElement(Icon, {
+      name: sortCol === "stage" ? (sortDir === "asc" ? "caret-up" : "caret-down") : "caret-up-down",
+      className: "text-base",
+      style: sortCol === "stage" ? { color: "var(--accent)" } : { color: "var(--ink-3)" }
+    })
+  )), /*#__PURE__*/React.createElement("th", {
+    className: "font-bold pb-3 pr-4 whitespace-nowrap",
+    style: { width: "125px" }
+  }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleSort("priority"),
+      className: "inline-flex items-center gap-2 tap hover:text-ink2"
+    }, "Priority", /*#__PURE__*/React.createElement(Icon, {
+      name: sortCol === "priority" ? (sortDir === "asc" ? "caret-up" : "caret-down") : "caret-up-down",
+      className: "text-base",
+      style: sortCol === "priority" ? { color: "var(--accent)" } : { color: "var(--ink-3)" }
+    })
+  )), /*#__PURE__*/React.createElement("th", {
+    className: "font-bold pb-3 pr-4",
+    style: { width: "235px" }
+  }, "Likely to Buy"), /*#__PURE__*/React.createElement("th", {
+    className: "font-bold pb-3 pr-4",
+    style: { width: "210px" }
+  }, "Notes"), /*#__PURE__*/React.createElement("th", {
+    className: "font-bold pb-3",
+    style: { width: "40px" }
+  }))), /*#__PURE__*/React.createElement("tbody", null, sortedRows.map((l, i) => {
     const checked = sel.has(l.id);
     return /*#__PURE__*/React.createElement("tr", {
       key: l.id,
@@ -800,15 +1007,13 @@ function LeadsTable() {
     }, /*#__PURE__*/React.createElement(PriorityMeter, {
       score: l.intent
     })), /*#__PURE__*/React.createElement("td", {
-      className: "py-3.5 pr-4"
+      className: "py-3.5 pr-4 overflow-hidden"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-start gap-2"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex gap-1.5 flex-1 min-w-0 items-center"
+      className: "flex gap-1.5 min-w-0 items-center overflow-hidden"
     }, (() => {
       const sorted = [...l.properties].sort((a, b) => b.intent - a.intent);
-      const visible = sorted.slice(0, 2);
-      const hidden = sorted.slice(2);
+      const visible = sorted.slice(0, 1);
+      const hidden = sorted.slice(1);
       return [
         ...visible.map(p => {
           const active = selectedProps.includes(p.name);
@@ -822,7 +1027,7 @@ function LeadsTable() {
             }
           }, /*#__PURE__*/React.createElement("span", {
             className: "font-medium text-ink",
-            style: { maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+            style: { maxWidth: "130px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
           }, p.name), /*#__PURE__*/React.createElement(PriorityScore, {
             score: p.intent,
             className: "text-[11px]"
@@ -835,14 +1040,25 @@ function LeadsTable() {
           style: { background: "var(--surface-2)", boxShadow: "inset 0 0 0 1px var(--line)", color: "var(--ink-3)", cursor: "default" }
         }, "+", hidden.length)
       ];
-    })()), /*#__PURE__*/React.createElement("button", {
-      className: "archive-btn tap",
+    })())),
+    /*#__PURE__*/React.createElement(NotesCell, {
+      leadId: l.id,
+      leadNotes,
+      setLeadNotes
+    }),
+    /*#__PURE__*/React.createElement("td", {
+      className: "py-3.5 align-middle text-center",
+      style: { width: "44px" },
+      onClick: e => e.stopPropagation()
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "prop-tip archive-btn tap",
+      "data-tip": activeTab === "active" ? "Archive" : "Unarchive",
       "aria-label": activeTab === "active" ? "Archive lead" : "Unarchive lead",
       onClick: e => { e.stopPropagation(); activeTab === "active" ? archiveOne(l.id) : unarchiveOne(l.id); }
     }, /*#__PURE__*/React.createElement(Icon, {
       name: activeTab === "active" ? "archive" : "arrow-counter-clockwise",
       weight: "thin"
-    })))));
+    }))));
   })))), composer && /*#__PURE__*/React.createElement(BroadcastComposer, {
     leads: selectedLeads,
     onClose: () => setComposer(false)

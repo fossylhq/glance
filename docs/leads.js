@@ -203,8 +203,12 @@ function StageCell({
     },
     className: "tap"
   }, currentStageObj ? /*#__PURE__*/React.createElement("span", {
-    style: chipStyle(currentStageObj.color)
-  }, currentStageObj.label) : /*#__PURE__*/React.createElement("span", {
+    className: "prop-tip",
+    style: { display: "inline" },
+    onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.scrollWidth > inner.offsetWidth) e.currentTarget.setAttribute("data-tip", currentStageObj.label); else e.currentTarget.removeAttribute("data-tip"); }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: Object.assign({}, chipStyle(currentStageObj.color), { maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block" })
+  }, currentStageObj.label)) : /*#__PURE__*/React.createElement("span", {
     className: "inline-flex items-center justify-center text-ink3 rounded-ctl border hairline transition-colors hover:text-ink hover:border-ink3",
     style: { padding: "7px 9px" }
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -751,10 +755,16 @@ function LeadsTable() {
     })), /*#__PURE__*/React.createElement("td", {
       className: "py-3.5 pr-4"
     }, /*#__PURE__*/React.createElement("div", {
+      className: "prop-tip",
+      onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.scrollWidth > inner.offsetWidth) e.currentTarget.setAttribute("data-tip", l.name || l.phone); else e.currentTarget.removeAttribute("data-tip"); }
+    }, /*#__PURE__*/React.createElement("div", {
       className: "font-semibold text-ink tnum truncate"
-    }, l.name || l.phone), l.name && /*#__PURE__*/React.createElement("div", {
-      className: "text-xs text-ink2 tnum mt-0.5"
-    }, l.phone)), /*#__PURE__*/React.createElement(StageCell, {
+    }, l.name || l.phone)), l.name && /*#__PURE__*/React.createElement("div", {
+      className: "prop-tip",
+      onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.scrollWidth > inner.offsetWidth) e.currentTarget.setAttribute("data-tip", l.phone); else e.currentTarget.removeAttribute("data-tip"); }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-ink2 tnum mt-0.5 truncate"
+    }, l.phone))), /*#__PURE__*/React.createElement(StageCell, {
       leadId: l.id,
       stages,
       leadStatus,
@@ -785,7 +795,7 @@ function LeadsTable() {
           return /*#__PURE__*/React.createElement("span", {
             key: p.name,
             className: "prop-tip inline-flex items-center gap-1.5 rounded-chip px-2 py-1 text-xs shrink-0",
-            "data-tip": p.name,
+            onMouseEnter: e => { const inner = e.currentTarget.firstElementChild; if (inner && inner.scrollWidth > inner.offsetWidth) e.currentTarget.setAttribute("data-tip", p.name); else e.currentTarget.removeAttribute("data-tip"); },
             style: {
               background: "var(--surface-2)",
               boxShadow: active ? "inset 0 0 0 1.5px var(--ink)" : "inset 0 0 0 1px var(--line)"

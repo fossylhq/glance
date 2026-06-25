@@ -97,9 +97,9 @@
   }
   tr:hover .archive-btn { opacity: 1; }
   .archive-btn:hover { background: var(--line-2); color: var(--ink); }
-  /* property chip tooltip */
+  /* property chip tooltip — only fires when data-tip attribute is present */
   .prop-tip { position: relative; }
-  .prop-tip::after {
+  .prop-tip[data-tip]::after {
     content: attr(data-tip);
     position: absolute;
     bottom: calc(100% + 7px);
@@ -118,7 +118,7 @@
     transition: opacity 0.12s;
     z-index: 60;
   }
-  .prop-tip::before {
+  .prop-tip[data-tip]::before {
     content: '';
     position: absolute;
     bottom: calc(100% + 2px);
@@ -131,7 +131,7 @@
     transition: opacity 0.12s;
     z-index: 60;
   }
-  .prop-tip:hover::after, .prop-tip:hover::before { opacity: 1; }
+  .prop-tip[data-tip]:hover::after, .prop-tip[data-tip]:hover::before { opacity: 1; }
   /* frosted-glass panel for text over a background image */
   .frost {
     background: var(--frost-bg);

@@ -50,7 +50,7 @@ function Login({
   })), /*#__PURE__*/React.createElement("div", {
     className: "relative hidden lg:flex flex-col justify-between p-10 border-r hairline",
     style: {
-      backgroundImage: "url('https://files.catbox.moe/o4n14s.png')",
+      backgroundImage: "url('https://file.garden/akqmiOgNuCMnLJoc/glance-bg.png')",
       backgroundSize: "cover",
       backgroundPosition: "center"
     }

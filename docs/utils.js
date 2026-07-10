@@ -62,6 +62,7 @@ let TOP_PROPERTIES = [{ name: "—", visits: 0 }];
 let LEADS = [];
 let PROPERTIES = [];
 let STAGES = [];
+let AGENT_WHATSAPP = null; // { dial_code: "+91", whatsapp_number: "9876543210" } | null
 
 function groupWeekly(daily) {
   if (!daily || !daily.length) return [];
@@ -75,10 +76,11 @@ function groupWeekly(daily) {
 }
 
 async function loadAppData() {
-  const [analyticsRes, leadsRes, stagesRes] = await Promise.all([
+  const [analyticsRes, leadsRes, stagesRes, whatsappRes] = await Promise.all([
     supabaseClient.rpc("get_builder_analytics"),
     supabaseClient.rpc("get_builder_leads"),
-    supabaseClient.rpc("get_builder_stages")
+    supabaseClient.rpc("get_builder_stages"),
+    supabaseClient.rpc("get_agent_whatsapp")
   ]);
 
   const d = analyticsRes.data;
@@ -125,6 +127,9 @@ async function loadAppData() {
   PROPERTIES = Array.from(propSet).sort();
 
   STAGES = (stagesRes.data || []).map(s => ({ label: s.label, color: s.color }));
+
+  const wa = whatsappRes.data;
+  AGENT_WHATSAPP = (wa && wa.whatsapp_number) ? { dialCode: wa.dial_code || "+91", number: wa.whatsapp_number } : null;
 }
 
 /* ============================================================

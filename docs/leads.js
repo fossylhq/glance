@@ -351,6 +351,91 @@ function StageCell({
 }
 
 /* ============================================================
+   DIAL CODES  (ITU, sorted: India first then alphabetical)
+   ============================================================ */
+const DIAL_CODES = [
+  { name: "India", code: "+91", flag: "🇮🇳", len: 10 },
+  { name: "Afghanistan", code: "+93", flag: "🇦🇫", len: 9 },
+  { name: "Albania", code: "+355", flag: "🇦🇱", len: 9 },
+  { name: "Algeria", code: "+213", flag: "🇩🇿", len: 9 },
+  { name: "Argentina", code: "+54", flag: "🇦🇷", len: 10 },
+  { name: "Australia", code: "+61", flag: "🇦🇺", len: 9 },
+  { name: "Austria", code: "+43", flag: "🇦🇹", len: 10 },
+  { name: "Bahrain", code: "+973", flag: "🇧🇭", len: 8 },
+  { name: "Bangladesh", code: "+880", flag: "🇧🇩", len: 10 },
+  { name: "Belgium", code: "+32", flag: "🇧🇪", len: 9 },
+  { name: "Bhutan", code: "+975", flag: "🇧🇹", len: 8 },
+  { name: "Brazil", code: "+55", flag: "🇧🇷", len: 11 },
+  { name: "Cambodia", code: "+855", flag: "🇰🇭", len: 9 },
+  { name: "Canada", code: "+1", flag: "🇨🇦", len: 10 },
+  { name: "Chile", code: "+56", flag: "🇨🇱", len: 9 },
+  { name: "China", code: "+86", flag: "🇨🇳", len: 11 },
+  { name: "Colombia", code: "+57", flag: "🇨🇴", len: 10 },
+  { name: "Czech Republic", code: "+420", flag: "🇨🇿", len: 9 },
+  { name: "Denmark", code: "+45", flag: "🇩🇰", len: 8 },
+  { name: "Egypt", code: "+20", flag: "🇪🇬", len: 10 },
+  { name: "Ethiopia", code: "+251", flag: "🇪🇹", len: 9 },
+  { name: "Finland", code: "+358", flag: "🇫🇮", len: 9 },
+  { name: "France", code: "+33", flag: "🇫🇷", len: 9 },
+  { name: "Germany", code: "+49", flag: "🇩🇪", len: 10 },
+  { name: "Ghana", code: "+233", flag: "🇬🇭", len: 9 },
+  { name: "Greece", code: "+30", flag: "🇬🇷", len: 10 },
+  { name: "Hong Kong", code: "+852", flag: "🇭🇰", len: 8 },
+  { name: "Hungary", code: "+36", flag: "🇭🇺", len: 9 },
+  { name: "Indonesia", code: "+62", flag: "🇮🇩", len: 11 },
+  { name: "Iran", code: "+98", flag: "🇮🇷", len: 10 },
+  { name: "Iraq", code: "+964", flag: "🇮🇶", len: 10 },
+  { name: "Ireland", code: "+353", flag: "🇮🇪", len: 9 },
+  { name: "Israel", code: "+972", flag: "🇮🇱", len: 9 },
+  { name: "Italy", code: "+39", flag: "🇮🇹", len: 10 },
+  { name: "Japan", code: "+81", flag: "🇯🇵", len: 10 },
+  { name: "Jordan", code: "+962", flag: "🇯🇴", len: 9 },
+  { name: "Kazakhstan", code: "+7", flag: "🇰🇿", len: 10 },
+  { name: "Kenya", code: "+254", flag: "🇰🇪", len: 9 },
+  { name: "Kuwait", code: "+965", flag: "🇰🇼", len: 8 },
+  { name: "Lebanon", code: "+961", flag: "🇱🇧", len: 8 },
+  { name: "Malaysia", code: "+60", flag: "🇲🇾", len: 10 },
+  { name: "Maldives", code: "+960", flag: "🇲🇻", len: 7 },
+  { name: "Mexico", code: "+52", flag: "🇲🇽", len: 10 },
+  { name: "Morocco", code: "+212", flag: "🇲🇦", len: 9 },
+  { name: "Myanmar", code: "+95", flag: "🇲🇲", len: 9 },
+  { name: "Nepal", code: "+977", flag: "🇳🇵", len: 10 },
+  { name: "Netherlands", code: "+31", flag: "🇳🇱", len: 9 },
+  { name: "New Zealand", code: "+64", flag: "🇳🇿", len: 9 },
+  { name: "Nigeria", code: "+234", flag: "🇳🇬", len: 10 },
+  { name: "Norway", code: "+47", flag: "🇳🇴", len: 8 },
+  { name: "Oman", code: "+968", flag: "🇴🇲", len: 8 },
+  { name: "Pakistan", code: "+92", flag: "🇵🇰", len: 10 },
+  { name: "Peru", code: "+51", flag: "🇵🇪", len: 9 },
+  { name: "Philippines", code: "+63", flag: "🇵🇭", len: 10 },
+  { name: "Poland", code: "+48", flag: "🇵🇱", len: 9 },
+  { name: "Portugal", code: "+351", flag: "🇵🇹", len: 9 },
+  { name: "Qatar", code: "+974", flag: "🇶🇦", len: 8 },
+  { name: "Romania", code: "+40", flag: "🇷🇴", len: 9 },
+  { name: "Russia", code: "+7", flag: "🇷🇺", len: 10 },
+  { name: "Saudi Arabia", code: "+966", flag: "🇸🇦", len: 9 },
+  { name: "Singapore", code: "+65", flag: "🇸🇬", len: 8 },
+  { name: "South Africa", code: "+27", flag: "🇿🇦", len: 9 },
+  { name: "South Korea", code: "+82", flag: "🇰🇷", len: 10 },
+  { name: "Spain", code: "+34", flag: "🇪🇸", len: 9 },
+  { name: "Sri Lanka", code: "+94", flag: "🇱🇰", len: 9 },
+  { name: "Sweden", code: "+46", flag: "🇸🇪", len: 9 },
+  { name: "Switzerland", code: "+41", flag: "🇨🇭", len: 9 },
+  { name: "Taiwan", code: "+886", flag: "🇹🇼", len: 9 },
+  { name: "Tanzania", code: "+255", flag: "🇹🇿", len: 9 },
+  { name: "Thailand", code: "+66", flag: "🇹🇭", len: 9 },
+  { name: "Tunisia", code: "+216", flag: "🇹🇳", len: 8 },
+  { name: "Turkey", code: "+90", flag: "🇹🇷", len: 10 },
+  { name: "Uganda", code: "+256", flag: "🇺🇬", len: 9 },
+  { name: "Ukraine", code: "+380", flag: "🇺🇦", len: 9 },
+  { name: "United Arab Emirates", code: "+971", flag: "🇦🇪", len: 9 },
+  { name: "United Kingdom", code: "+44", flag: "🇬🇧", len: 10 },
+  { name: "United States", code: "+1", flag: "🇺🇸", len: 10 },
+  { name: "Vietnam", code: "+84", flag: "🇻🇳", len: 9 },
+  { name: "Zimbabwe", code: "+263", flag: "🇿🇼", len: 9 },
+];
+
+/* ============================================================
    BROADCAST COMPOSER  (WhatsApp 1:1 broadcast modal)
    ============================================================ */
 function BroadcastComposer({
@@ -362,16 +447,86 @@ function BroadcastComposer({
   const [phase, setPhase] = useState("compose"); // compose | sending | done
   const [sent, setSent] = useState(0);
   const fileRef = useRef(null);
+
+  // Sender's number state
+  const [senderDialCode, setSenderDialCode] = useState(() => AGENT_WHATSAPP?.dialCode || "+91");
+  const [senderNumber, setSenderNumber] = useState(() => AGENT_WHATSAPP?.number || "");
+  const [senderSaved, setSenderSaved] = useState(() => !!AGENT_WHATSAPP);
+  const [editingSender, setEditingSender] = useState(() => !AGENT_WHATSAPP);
+  const [dialOpen, setDialOpen] = useState(false);
+  const [dialSearch, setDialSearch] = useState("");
+  const [dialPos, setDialPos] = useState(null);
+  const [senderSaving, setSenderSaving] = useState(false);
+  const dialBtnRef = useRef(null);
+  const dialDropRef = useRef(null);
+
+  // Derived sender values
+  const currentCountry = DIAL_CODES.find(c => c.code === senderDialCode) || DIAL_CODES[0];
+  const senderDigits = senderNumber.replace(/\D/g, "");
+  const senderValid = currentCountry.len
+    ? senderDigits.length === currentCountry.len
+    : senderDigits.length >= 6 && senderDigits.length <= 12;
+  const filteredCodes = DIAL_CODES.filter(c =>
+    !dialSearch ||
+    c.name.toLowerCase().includes(dialSearch.toLowerCase()) ||
+    c.code.includes(dialSearch)
+  );
+
   useEffect(() => {
     const onKey = e => {
-      if (e.key === "Escape" && phase !== "sending") onClose();
+      if (e.key === "Escape" && phase !== "sending") {
+        if (dialOpen) { setDialOpen(false); setDialSearch(""); }
+        else onClose();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [phase, onClose]);
+  }, [phase, onClose, dialOpen]);
   useEffect(() => () => {
     if (media?.url) URL.revokeObjectURL(media.url);
   }, [media]);
+
+  // Click-outside for dial dropdown
+  useEffect(() => {
+    if (!dialOpen) return;
+    const h = e => {
+      const inBtn = dialBtnRef.current && dialBtnRef.current.contains(e.target);
+      const inDrop = dialDropRef.current && dialDropRef.current.contains(e.target);
+      if (!inBtn && !inDrop) { setDialOpen(false); setDialSearch(""); }
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [dialOpen]);
+
+  const openDial = () => {
+    if (!dialBtnRef.current) return;
+    const r = dialBtnRef.current.getBoundingClientRect();
+    setDialPos({ top: r.bottom + 4, left: r.left });
+    setDialOpen(o => !o);
+    setDialSearch("");
+  };
+  const selectCountry = c => {
+    setSenderDialCode(c.code);
+    setSenderNumber("");
+    setSenderSaved(false);
+    setDialOpen(false);
+    setDialSearch("");
+  };
+  const saveSender = async () => {
+    if (!senderValid || senderSaving) return;
+    setSenderSaving(true);
+    const { error } = await supabaseClient.rpc("upsert_agent_whatsapp", {
+      p_dial_code: senderDialCode,
+      p_whatsapp_number: senderDigits
+    });
+    if (!error) {
+      AGENT_WHATSAPP = { dialCode: senderDialCode, number: senderDigits };
+      setSenderSaved(true);
+      setEditingSender(false);
+    }
+    setSenderSaving(false);
+  };
+
   const pickFile = e => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
@@ -388,24 +543,52 @@ function BroadcastComposer({
     setMedia(null);
     if (fileRef.current) fileRef.current.value = "";
   };
-  const canSend = (text.trim().length > 0 || media) && leads.length > 0;
+  const canSend = text.trim().length > 0 && leads.length > 0 && senderSaved;
   const preview = text.replace(/\{name\}/g, leads[0]?.name?.split(" ")[0] || "there");
   const send = () => {
-    setPhase("sending");
-    setSent(0);
-    let n = 0;
-    const tick = () => {
-      n += 1;
-      setSent(n);
-      if (n >= leads.length) {
-        setTimeout(() => setPhase("done"), 280);
-        return;
-      }
-      setTimeout(tick, 240);
-    };
-    setTimeout(tick, 240);
+    leads.forEach(lead => {
+      const e164 = lead.phone.replace(/\D/g, "");
+      const firstName = lead.name?.split(" ")[0] || "there";
+      const msg = text.replace(/\{name\}/g, firstName);
+      window.open("https://wa.me/" + e164 + "?text=" + encodeURIComponent(msg), "_blank");
+    });
+    setSent(leads.length);
+    setPhase("done");
   };
-  return /*#__PURE__*/React.createElement("div", {
+  const dialPortal = dialOpen ? ReactDOM.createPortal(
+    /*#__PURE__*/React.createElement("div", {
+      ref: dialDropRef,
+      style: { position: "fixed", top: dialPos ? dialPos.top : 0, left: dialPos ? dialPos.left : 0, zIndex: 300, width: "240px", maxHeight: "260px", display: "flex", flexDirection: "column", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "6px", boxShadow: "0 12px 40px rgba(0,0,0,0.22)", overflow: "hidden" }
+    },
+      /*#__PURE__*/React.createElement("div", { style: { padding: "6px 8px", borderBottom: "1px solid var(--line)" } },
+        /*#__PURE__*/React.createElement("input", {
+          autoFocus: true,
+          value: dialSearch,
+          onChange: e => setDialSearch(e.target.value),
+          placeholder: "Search country or code…",
+          className: "w-full text-sm px-2 py-1.5 rounded-ctl surface ring-ink text-ink outline-none",
+          onClick: e => e.stopPropagation()
+        })
+      ),
+      /*#__PURE__*/React.createElement("ul", { style: { overflowY: "auto", flex: 1, padding: "4px 0" } },
+        filteredCodes.length === 0
+          ? /*#__PURE__*/React.createElement("li", { style: { padding: "10px 12px", fontSize: "13px", color: "var(--ink-3)" } }, "No results")
+          : filteredCodes.map(c => /*#__PURE__*/React.createElement("li", { key: c.name + c.code },
+              /*#__PURE__*/React.createElement("button", {
+                onClick: () => selectCountry(c),
+                className: "flex items-center gap-2.5 w-full text-left px-3 py-2 text-sm text-ink tap hover:well",
+                style: c.code === senderDialCode && c.name === currentCountry.name ? { background: "var(--surface-2)" } : {}
+              },
+                /*#__PURE__*/React.createElement("span", { style: { fontSize: "15px", lineHeight: 1, flexShrink: 0 } }, c.flag),
+                /*#__PURE__*/React.createElement("span", { className: "truncate flex-1" }, c.name),
+                /*#__PURE__*/React.createElement("span", { className: "tnum text-ink3 shrink-0", style: { fontSize: "12px" } }, c.code)
+              )
+            ))
+      )
+    ),
+    document.body
+  ) : null;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-4",
     style: {
       background: "rgba(0,0,0,0.55)",
@@ -455,9 +638,9 @@ function BroadcastComposer({
     className: "text-xl"
   })), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 text-lg text-ink"
-  }, "Broadcast sent"), /*#__PURE__*/React.createElement("p", {
+  }, "Opened ", leads.length, " WhatsApp ", leads.length === 1 ? "chat" : "chats"), /*#__PURE__*/React.createElement("p", {
     className: "mt-1 text-sm text-ink2"
-  }, "Delivered an individual message to ", leads.length, " ", leads.length === 1 ? "lead" : "leads", "."), /*#__PURE__*/React.createElement("button", {
+  }, "Check your browser tabs. Each lead received a separate message."), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "mt-6 rounded-ctl px-5 py-2.5 text-sm tap",
     style: {
@@ -466,7 +649,52 @@ function BroadcastComposer({
     }
   }, "Done")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "px-5 py-4 space-y-4 max-h-[60vh] overflow-auto"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  },
+  /*#__PURE__*/React.createElement("div", null,
+    /*#__PURE__*/React.createElement("div", { className: "text-[11px] text-ink2 mb-1.5" }, "Sender's Number"),
+    editingSender
+      ? /*#__PURE__*/React.createElement(React.Fragment, null,
+          /*#__PURE__*/React.createElement("div", { className: "flex gap-2" },
+            /*#__PURE__*/React.createElement("button", {
+              ref: dialBtnRef,
+              onClick: openDial,
+              className: "shrink-0 flex items-center gap-1.5 surface rounded-ctl border hairline px-2.5 py-2 text-sm text-ink tap"
+            },
+              /*#__PURE__*/React.createElement("span", { style: { fontSize: "16px", lineHeight: 1 } }, currentCountry.flag),
+              /*#__PURE__*/React.createElement("span", { className: "tnum" }, currentCountry.code),
+              /*#__PURE__*/React.createElement(Icon, { name: "caret-down", className: "text-xs text-ink3" })
+            ),
+            /*#__PURE__*/React.createElement("input", {
+              value: senderNumber,
+              onChange: e => { setSenderNumber(e.target.value.replace(/\D/g, "")); setSenderSaved(false); },
+              inputMode: "tel",
+              maxLength: 15,
+              placeholder: "0".repeat(currentCountry.len || 10),
+              className: "flex-1 min-w-0 surface rounded-ctl border hairline px-3 py-2 text-sm text-ink ring-ink tnum outline-none"
+            }),
+            /*#__PURE__*/React.createElement("button", {
+              onClick: saveSender,
+              disabled: !senderValid || senderSaving,
+              className: "shrink-0 flex items-center justify-center gap-1.5 rounded-ctl px-3 py-2 text-sm tap disabled:opacity-40",
+              style: { background: "var(--accent)", color: "var(--on-accent)" }
+            }, senderSaving ? /*#__PURE__*/React.createElement(Spinner, null) : "Save")
+          ),
+          senderNumber.length > 0 && !senderValid && /*#__PURE__*/React.createElement("p", {
+            className: "mt-1.5 text-[11px]",
+            style: { color: "var(--pri-low-fg)" }
+          }, "Must be ", currentCountry.len || "6 to 12", " digits for ", currentCountry.name, " (", currentCountry.code, ")")
+        )
+      : /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-2 text-sm text-ink" },
+          /*#__PURE__*/React.createElement("span", { style: { fontSize: "16px", lineHeight: 1 } }, currentCountry.flag),
+          /*#__PURE__*/React.createElement("span", { className: "tnum" }, senderDialCode, " ", senderNumber),
+          /*#__PURE__*/React.createElement(Icon, { name: "check", className: "text-xs text-ink3 ml-0.5" }),
+          /*#__PURE__*/React.createElement("button", {
+            onClick: () => setEditingSender(true),
+            className: "flex items-center gap-1.5 text-[11px] text-ink2 hover:text-ink tap ml-1"
+          }, /*#__PURE__*/React.createElement(Icon, { name: "pencil-simple", className: "text-xs" }), "Edit")
+        )
+  ),
+  /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-ink2 mb-1.5"
   }, "Recipients"), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-1.5 max-h-20 overflow-auto"
@@ -495,66 +723,28 @@ function BroadcastComposer({
     className: "text-ink"
   }, "{name}"), " to personalise. Preview: ", /*#__PURE__*/React.createElement("span", {
     className: "text-ink"
-  }, preview.slice(0, 80), preview.length > 80 ? "…" : ""))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] text-ink2 mb-1.5"
-  }, "Attachment (image or video)"), media ? /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3 rounded-ctl border hairline p-2.5"
+  }, preview.slice(0, 80), preview.length > 80 ? "…" : "")))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-2.5 px-5 py-4 border-t hairline"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "h-14 w-14 rounded-[4px] overflow-hidden well grid place-items-center shrink-0"
-  }, media.type === "image" ? /*#__PURE__*/React.createElement("img", {
-    src: media.url,
-    alt: "",
-    className: "h-full w-full object-cover"
-  }) : /*#__PURE__*/React.createElement(Icon, {
-    name: "video-camera",
-    className: "text-xl text-ink2"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0 flex-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "text-sm text-ink truncate prop-tip",
-    onMouseEnter: e => { if (e.currentTarget.scrollWidth > e.currentTarget.offsetWidth) e.currentTarget.setAttribute("data-tip", media.name); else e.currentTarget.removeAttribute("data-tip"); }
-  }, media.name), /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] text-ink2 capitalize"
-  }, media.type)), /*#__PURE__*/React.createElement("button", {
-    onClick: removeMedia,
-    className: "grid place-items-center h-8 w-8 rounded-ctl text-ink2 hover:text-ink hover:well tap"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "trash"
-  }))) : /*#__PURE__*/React.createElement("button", {
-    onClick: () => fileRef.current && fileRef.current.click(),
-    className: "flex w-full items-center justify-center gap-2 rounded-ctl border border-dashed hairline px-3 py-4 text-sm text-ink2 hover:well tap"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "paperclip"
-  }), " Attach image or video"), /*#__PURE__*/React.createElement("input", {
-    ref: fileRef,
-    type: "file",
-    accept: "image/*,video/*",
-    className: "hidden",
-    onChange: pickFile
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col gap-3 px-5 py-4 border-t hairline sm:flex-row sm:items-center sm:justify-between"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 order-1 sm:order-2"
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
-    disabled: phase === "sending",
-    className: "flex-1 sm:flex-none rounded-ctl border hairline px-4 py-2.5 text-sm text-ink tap surface disabled:opacity-40"
+    className: "flex-1 rounded-ctl border hairline px-4 py-2.5 text-sm text-ink tap surface disabled:opacity-40"
   }, "Cancel"), /*#__PURE__*/React.createElement("button", {
     onClick: send,
-    disabled: !canSend || phase === "sending",
-    className: "flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-ctl px-4 py-2.5 text-sm tap disabled:opacity-40",
+    disabled: !canSend,
+    className: "flex-1 flex items-center justify-center gap-2 rounded-ctl px-4 py-2.5 text-sm tap disabled:opacity-40",
     style: {
       background: "var(--accent)",
       color: "var(--on-accent)"
     }
-  }, phase === "sending" ? /*#__PURE__*/React.createElement(Spinner, null) : /*#__PURE__*/React.createElement(Icon, {
+  }, /*#__PURE__*/React.createElement(Icon, {
     name: "paper-plane-tilt",
     weight: "bold"
-  }), phase === "sending" ? "Sending" : `Send to ${leads.length}`)), /*#__PURE__*/React.createElement("span", {
-    className: "text-[11px] text-ink2 order-2 sm:order-1 text-center sm:text-left"
-  }, phase === "sending" ? /*#__PURE__*/React.createElement("span", {
-    className: "tnum"
-  }, "Sending ", sent, " / ", leads.length, "…") : "Each lead receives a separate 1:1 message.")))));
+  }), `Send to ${leads.length}`)), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] text-ink2 text-center sm:text-left"
+  }, "Opens one WhatsApp tab per lead. Please allow pop-ups when your browser asks."))))),
+  dialPortal);
 }
 
 /* ============================================================

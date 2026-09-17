@@ -201,7 +201,7 @@ function AreaChart({ data, rangeLabel = "Last 8 weeks", hoverPrefix = "Week of "
     return /*#__PURE__*/React.createElement("line", { key: `grid-${i}`, x1: padding.left, x2: width - padding.right, y1: y, y2: y, stroke: "var(--chart-grid)", strokeDasharray: i === 2 ? "0" : "3 4" });
   }), /*#__PURE__*/React.createElement("path", { d: areaPath, fill: "url(#propertyAreaGradient)" }), /*#__PURE__*/React.createElement("path", {
     d: linePath,
-    fill: "var(--surface)",
+    fill: "none",
     stroke: "var(--chart-ink)",
     strokeWidth: "2.5",
     strokeLinecap: "round",

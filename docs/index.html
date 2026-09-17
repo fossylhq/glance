@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fossyl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/thin/style.css">
+<style>
+  *,:before,:after{box-sizing:border-box}
+  :root{
+    --bg:#000000; --surface:#111111; --surface-2:#1a1a1a;
+    --ink:#f3f3f1; --ink-2:#b4b4b9; --ink-3:#97979e;
+    --line:#242424; --line-2:#313135;
+    --accent:#f3f3f1; --on-accent:#111113;
+    --frost-bg: rgba(17,17,17,0.62); --frost-border: rgba(255,255,255,0.10);
+  }
+  html,body{margin:0;background:var(--bg);color:var(--ink);height:100%}
+  body{
+    font-family:'Manrope',system-ui,sans-serif;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    min-height:100dvh;
+    display:flex; flex-direction:column;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body *{ font-weight:400; }
+  .tnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(255,255,255,0.05), transparent 60%),
+      radial-gradient(900px 500px at 100% 100%, rgba(255,255,255,0.04), transparent 55%);
+    pointer-events:none;
+  }
+  .wrap{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 6vh 1.5rem;
+    position:relative; z-index:1;
+  }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:.85rem; margin-bottom:3.5rem; }
+  .brand svg{ color:var(--ink); }
+  .brand-name{ display:flex; align-items:baseline; justify-content:center; gap:.35rem; }
+  .lockup-main{ font-size:1.3rem; letter-spacing:-0.02em; }
+  .lockup-sub{ font-size:.7rem; color:var(--ink-3); letter-spacing:.01em; }
+  .brand-tag{ font-size:.78rem; color:var(--ink-3); letter-spacing:.02em; margin-top:.2rem; }
+  h1{
+    font-size:clamp(1.6rem, 3.6vw, 2.5rem);
+    letter-spacing:-0.03em; line-height:1.1;
+    text-align:center; max-width:20ch; margin:0 0 .65rem;
+  }
+  p.lede{
+    color:var(--ink-2); text-align:center; font-size:.95rem;
+    max-width:38ch; margin:0 0 3rem; line-height:1.55;
+  }
+  .grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:1.1rem;
+    width:100%; max-width:720px;
+  }
+  @media (max-width:640px){ .grid{ grid-template-columns:1fr; } }
+  a.card{
+    text-decoration:none; color:inherit;
+    background:var(--frost-bg);
+    -webkit-backdrop-filter:blur(14px) saturate(120%);
+    backdrop-filter:blur(14px) saturate(120%);
+    border:1px solid var(--frost-border);
+    border-radius:4px;
+    padding:2.1rem 1.75rem;
+    display:flex; flex-direction:column; gap:1.1rem;
+    transition:border-color .18s ease, transform .18s ease, background .18s ease;
+  }
+  a.card:hover{
+    border-color:rgba(255,255,255,0.22);
+    background:rgba(26,26,26,0.65);
+    transform:translateY(-2px);
+  }
+  a.card:active{ transform:translateY(0px); }
+  .card-icon{
+    height:52px; width:52px; border-radius:4px;
+    display:grid; place-items:center;
+    border:1px solid var(--line-2);
+    background:var(--surface-2);
+    font-size:1.6rem; color:var(--ink);
+  }
+  .card h2{ font-size:1.15rem; letter-spacing:-0.01em; margin:0; }
+  .card p{ font-size:.85rem; color:var(--ink-3); line-height:1.5; margin:0; }
+  .card .go{
+    margin-top:.15rem;
+    display:flex; align-items:center; gap:.4rem;
+    font-size:.8rem; color:var(--ink-2);
+  }
+  .card .go i{ font-size:1rem; transition:transform .18s ease; }
+  a.card:hover .go i{ transform:translateX(3px); }
+  footer{
+    text-align:center; font-size:.72rem; color:var(--ink-3);
+    letter-spacing:.02em; padding:1.75rem 1rem 2rem; position:relative; z-index:1;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 127 127" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-label="Fossyl" role="img">
+        <path d="M63.5 24.5657C28.4962 24.5657 0 41.8266 0 63.0365C0 84.2464 28.4777 101.507 63.5 101.507C98.5223 101.507 127 84.2464 127 63.0365C127 41.8266 98.5223 24.5657 63.5 24.5657ZM42.698 63.0365C42.698 76.0888 46.4431 87.5837 52.0978 94.2766C53.5625 96.0194 51.968 98.6336 49.7618 98.133C29.9053 93.6277 15.3883 79.5929 15.3883 63.0365C15.3883 46.4802 29.9053 32.4638 49.7618 27.94C51.9866 27.4394 53.581 30.0536 52.0978 31.7964C46.4431 38.4708 42.698 49.9842 42.698 63.0365ZM63.5 27.495C73.9566 27.495 82.448 43.4396 82.448 63.0365C82.448 82.6334 73.9381 98.578 63.5 98.578C53.0619 98.578 44.552 82.6334 44.552 63.0365C44.552 43.4396 53.0619 27.495 63.5 27.495ZM84.302 63.0365C84.302 49.9842 80.5569 38.4894 74.9022 31.7964C73.4375 30.0536 75.032 27.4394 77.2383 27.94C97.0947 32.4453 111.612 46.4802 111.612 63.0365C111.612 79.5929 97.0947 93.6092 77.2383 98.133C75.0134 98.6336 73.419 96.0194 74.9022 94.2766C80.5569 87.6022 84.302 76.0888 84.302 63.0365ZM1.85401 63.0365C1.85401 53.0619 8.60263 43.9958 19.5413 37.3955C21.9145 35.9494 24.4174 38.9714 22.5448 41.0294C16.8715 47.2588 13.5343 54.8603 13.5343 63.0365C13.5343 71.2127 16.8715 78.7956 22.5448 85.0437C24.4174 87.1016 21.933 90.1237 19.5413 88.6775C8.60263 82.0587 1.85401 73.0111 1.85401 63.0365ZM107.459 88.6961C105.086 90.1422 102.583 87.1202 104.455 85.0622C110.128 78.8142 113.466 71.2312 113.466 63.055C113.466 54.8788 110.128 47.2774 104.455 41.0479C102.583 38.9899 105.067 35.9679 107.459 37.414C118.397 44.0329 125.146 53.0804 125.146 63.0736C125.146 73.0667 118.397 82.1143 107.459 88.7331V88.6961Z"/>
+        <path d="M63.5 0L65.9102 55.3609C66.04 58.2161 68.3204 60.4965 71.1756 60.6263L126.536 63.0365L71.1756 65.4467C68.3204 65.5765 66.04 67.8569 65.9102 70.7121L63.5 126.073L61.0898 70.7121C60.96 67.8569 58.6796 65.5765 55.8244 65.4467L0.463501 63.0365L55.8244 60.6263C58.6796 60.4965 60.96 58.2161 61.0898 55.3609L63.5 0Z"/>
+      </svg>
+      <div style="text-align:center">
+        <div class="brand-name"><span class="lockup-main">Glance</span> <span class="lockup-sub">by fossyl</span></div>
+        <div class="brand-tag">capture.preserve.experience</div>
+      </div>
+    </div>
+
+    <h1>Pick your vertical.</h1>
+    <div style="height:1.75rem"></div>
+    <div class="grid">
+      <a class="card" href="/real-estate">
+        <div class="card-icon"><i class="ph-thin ph-buildings"></i></div>
+        <div>
+          <h2>Real Estate</h2>
+          <p>Lead intelligence, 3D walkthroughs and site-visit analytics for property sales teams.</p>
+        </div>
+        <span class="go">Enter <i class="ph-thin ph-arrow-right"></i></span>
+      </a>
+
+      <a class="card" href="/hospitality">
+        <div class="card-icon"><i class="ph-thin ph-martini"></i></div>
+        <div>
+          <h2>Hospitality</h2>
+          <p>Immersive venue tours and guest-engagement insight for hotels, resorts and F&amp;B spaces.</p>
+        </div>
+        <span class="go">Enter <i class="ph-thin ph-arrow-right"></i></span>
+      </a>
+    </div>
+  </div>
+  <footer>&copy; <span id="y"></span> Fossyl</footer>
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
